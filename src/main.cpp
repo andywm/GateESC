@@ -1,74 +1,173 @@
 #include <Arduino.h>
-
-struct State
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+struct Pinout
 {
-  uint32_t high;
-  uint32_t ground;
+  uint8_t sense_a         = 8;
+  uint8_t sense_b         = 9;
+  uint8_t sense_c         = 10;
+  uint8_t phase_a_source   = 2;
+  uint8_t phase_a_sink    = 3;
+  uint8_t phase_b_source  = 4;
+  uint8_t phase_b_sink    = 5;
+  uint8_t phase_c_source  = 6;
+  uint8_t phase_c_sink    = 7;
+}Pins;
 
-  uint8_t sequence_pointer;
-}g_state;
-
-struct Phase
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+enum PhaseState { V_NC = 0x0, V_SINK = 0x1, V_SOURCE = 0x2 };
+struct TableEntry
 {
-    const uint32_t high_pin; 
-    const uint32_t ground_pin; 
+  uint8_t sense_a, sense_b, sense_c;
+  PhaseState phase_a, phase_b, phase_c;
 };
 
-namespace phase
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+constexpr uint8_t CLOCKWISE = 0;
+constexpr uint8_t ANTI_CLOCKWISE = 1;
+uint8_t SenseStateToCommutationIdx[0x1<<4] = {UINT8_MAX};
+uint8_t CurrentDirection = CLOCKWISE;
+TableEntry CurrentState = { 0, 0, 0, V_NC, V_NC, V_NC };
+//------------------------------------------------------------------------------
+//3 phase bldc sequencing - 
+// clockwise - CA CB AB AC BC BA 
+// anti-clockwise - AB CB CA BA BC AC     
+//------------------------------------------------------------------------------
+TableEntry CommutationTable[12] =
 {
-  enum ID { A, B, C };
+    /*a  b  c     A          B          C */
+    { 1, 0, 1, V_SOURCE,  V_SINK,     V_NC },
+    { 1, 0, 0, V_SOURCE,  V_NC,       V_SINK },
+    { 1, 1, 0, V_NC,      V_SOURCE,   V_SINK },
+    { 0, 1, 0, V_SINK,    V_SOURCE,   V_NC },
+    { 0, 1, 1, V_SINK,    V_NC,       V_SOURCE },
+    { 0, 0, 1, V_NC,      V_SINK,     V_SOURCE },
 
-  struct SequenceElement
-  {
-    ID high;
-    ID low;
-  };
+    { 0, 0, 1, V_NC,      V_SOURCE,   V_SINK },
+    { 0, 1, 1, V_SOURCE,  V_NC,       V_SINK },
+    { 0, 1, 0, V_SOURCE,  V_SINK,     V_NC },
+    { 1, 1, 0, V_NC,      V_SINK,     V_SOURCE },
+    { 1, 0, 0, V_SINK,    V_NC,       V_SOURCE },
+    { 1, 0, 1, V_SINK,    V_SOURCE,   V_NC }
+};
 
-  //digital pins for phases.
-  constexpr Phase phases[] = { { 2, 3 }, { 4, 5 }, { 6, 7 } };
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
-  //3 phase bldc sequencing - clockwise - CA CB AB AC BC BA
-  constexpr SequenceElement sequencing[] = { {C, A}, {C, B}, {A, B}, {A, C}, {B, C}, {B, A} };
-
-  //3 phase bldc sequencing - anti-clockwise - AB CB CA BA BC AC
-
-}
-
-void setup() 
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+uint8_t calcSenseState( uint8_t a, uint8_t b, uint8_t c, uint8_t direction)
 {
-  for( int i = 0; i < 3; ++i )
+  return (a << 0) + (b << 1) + (c << 2) + (direction << 3);
+} 
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void makeSenseStateToCommutatioTable()
+{
+  for( uint8_t direction = CLOCKWISE; direction < ANTI_CLOCKWISE; ++direction)
   {
-    pinMode(phase::phases[i].high_pin, OUTPUT); 
-    pinMode(phase::phases[i].ground_pin, OUTPUT); 
+    for( uint8_t phase = 0; phase < 6; ++phase )
+    {
+      uint8_t commutatorIdx = (direction + 1) * phase;
+
+      const TableEntry& entry = CommutationTable[ commutatorIdx ];
+      uint8_t uiniqueSensorState = calcSenseState(entry.sense_a, entry.sense_b, entry.sense_c, + direction);
+      SenseStateToCommutationIdx[uiniqueSensorState] = commutatorIdx;
+    }
   }
-
-  const phase::SequenceElement& first = phase::sequencing[g_state.sequence_pointer];
-  g_state.high = phase::phases[first.high].high_pin;
-  g_state.ground = phase::phases[first.low].ground_pin;
-  g_state.sequence_pointer = 0;
 }
 
-void setActivePhases(const Phase& asHighPhase, const Phase& asGroundPhase)
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void makeSafe()
 {
-  digitalWrite(g_state.high, LOW);
-  digitalWrite(g_state.ground, LOW);
-
-  g_state.high = asHighPhase.high_pin;
-  g_state.ground = asGroundPhase.ground_pin;
-
-  digitalWrite(g_state.high, HIGH);
-  digitalWrite(g_state.ground, HIGH);
+  digitalWrite( Pins.phase_a_source, LOW );
+  digitalWrite( Pins.phase_b_source, LOW );
+  digitalWrite( Pins.phase_c_source, LOW );
+  digitalWrite( Pins.phase_a_sink, LOW );
+  digitalWrite( Pins.phase_b_sink, LOW );
+  digitalWrite( Pins.phase_c_sink, LOW );
 }
 
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+bool readState()
+{
+  uint8_t a = CurrentState.sense_a;
+  uint8_t b = CurrentState.sense_b; 
+  uint8_t c = CurrentState.sense_c;
+
+  CurrentState.sense_a = digitalRead( Pins.sense_a );
+  CurrentState.sense_b = digitalRead( Pins.sense_b );
+  CurrentState.sense_c = digitalRead( Pins.sense_c );
+  uint8_t senseSum = (CurrentState.sense_a + CurrentState.sense_b +  CurrentState.sense_c);
+
+  return (a + b + c) != senseSum && senseSum != 0 && senseSum != 3;
+}
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void setNewState()
+{
+  const uint8_t senseState = calcSenseState( CurrentState.sense_a, CurrentState.sense_b, CurrentState.sense_c, CurrentDirection );
+  const uint8_t commutationIdx = SenseStateToCommutationIdx[senseState];
+  const TableEntry& newState = CommutationTable[commutationIdx];
+
+  CurrentState.phase_a = newState.phase_a;
+  CurrentState.phase_b = newState.phase_b;
+  CurrentState.phase_c = newState.phase_c;
+
+  const uint8_t to_sourcing[] = {0,0,1}; 
+  digitalWrite( Pins.phase_a_source, to_sourcing[CurrentState.phase_a] );
+  digitalWrite( Pins.phase_b_source, to_sourcing[CurrentState.phase_b] );
+  digitalWrite( Pins.phase_c_source, to_sourcing[CurrentState.phase_c] );
+
+  const uint8_t to_sinking[] = {0,1,0}; 
+  digitalWrite( Pins.phase_a_sink, to_sinking[CurrentState.phase_a] );
+  digitalWrite( Pins.phase_b_sink, to_sinking[CurrentState.phase_b] );
+  digitalWrite( Pins.phase_c_sink, to_sinking[CurrentState.phase_c] );
+}
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void setup()
+{
+  //pinMode(13, OUTPUT );
+
+
+  pinMode( Pins.sense_a, INPUT );
+  pinMode( Pins.sense_b, INPUT );
+  pinMode( Pins.sense_c, INPUT );
+  pinMode( Pins.phase_a_source, OUTPUT );
+  pinMode( Pins.phase_a_sink, OUTPUT );
+  pinMode( Pins.phase_b_source, OUTPUT );
+  pinMode( Pins.phase_b_sink, OUTPUT );
+  pinMode( Pins.phase_c_source, OUTPUT );
+  pinMode( Pins.phase_c_sink, OUTPUT );
+  makeSenseStateToCommutatioTable();
+  makeSafe();
+
+  //digitalWrite( 13, LOW );
+}
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void loop() 
 {
-  const phase::SequenceElement& element = phase::sequencing[g_state.sequence_pointer++];
-  setActivePhases(phase::phases[element.high], phase::phases[element.low]);
-
-  if( g_state.sequence_pointer >= 6 )
+  if( readState() )
   {
-    g_state.sequence_pointer = 0;
-  }
+    //if( CurrentState.sense_a == 1 && CurrentState.sense_b == 0 && CurrentState.sense_c == 1 )
+    //{
+    //  digitalWrite( 13, HIGH );
+    //}
 
-  delay(100);
+    makeSafe();
+    setNewState();
+  }
 }
