@@ -6,7 +6,9 @@ struct Pinout
   uint8_t sense_a         = 8;
   uint8_t sense_b         = 9;
   uint8_t sense_c         = 10;
-  uint8_t phase_a_source   = 2;
+  uint8_t dir_output      = 11;
+  uint8_t dir_input       = 12;
+  uint8_t phase_a_source  = 2;
   uint8_t phase_a_sink    = 3;
   uint8_t phase_b_source  = 4;
   uint8_t phase_b_sink    = 5;
@@ -70,16 +72,13 @@ uint8_t calcSenseState( uint8_t a, uint8_t b, uint8_t c, uint8_t direction)
 //------------------------------------------------------------------------------
 void makeSenseStateToCommutatioTable()
 {
-  for( uint8_t direction = CLOCKWISE; direction < ANTI_CLOCKWISE; ++direction)
+  for( uint8_t commutatorIdx = 0; commutatorIdx < 12; ++commutatorIdx )
   {
-    for( uint8_t phase = 0; phase < 6; ++phase )
-    {
-      uint8_t commutatorIdx = (direction + 1) * phase;
+    const uint8_t direction = (commutatorIdx < 6)? CLOCKWISE : ANTI_CLOCKWISE;
 
-      const TableEntry& entry = CommutationTable[ commutatorIdx ];
-      uint8_t uiniqueSensorState = calcSenseState(entry.sense_a, entry.sense_b, entry.sense_c, + direction);
-      SenseStateToCommutationIdx[uiniqueSensorState] = commutatorIdx;
-    }
+    const TableEntry& entry = CommutationTable[ commutatorIdx ];
+    const uint8_t uiniqueSensorState = calcSenseState(entry.sense_a, entry.sense_b, entry.sense_c, direction);
+    SenseStateToCommutationIdx[uiniqueSensorState] = commutatorIdx;
   }
 }
 
@@ -99,14 +98,14 @@ void makeSafe()
 //------------------------------------------------------------------------------
 bool readState()
 {
-  uint8_t a = CurrentState.sense_a;
-  uint8_t b = CurrentState.sense_b; 
-  uint8_t c = CurrentState.sense_c;
+  const uint8_t a = CurrentState.sense_a;
+  const uint8_t b = CurrentState.sense_b; 
+  const uint8_t c = CurrentState.sense_c;
 
   CurrentState.sense_a = digitalRead( Pins.sense_a );
   CurrentState.sense_b = digitalRead( Pins.sense_b );
   CurrentState.sense_c = digitalRead( Pins.sense_c );
-  uint8_t senseSum = (CurrentState.sense_a + CurrentState.sense_b +  CurrentState.sense_c);
+  const uint8_t senseSum = (CurrentState.sense_a + CurrentState.sense_b +  CurrentState.sense_c);
 
   return (a + b + c) != senseSum && senseSum != 0 && senseSum != 3;
 }
@@ -138,9 +137,6 @@ void setNewState()
 //------------------------------------------------------------------------------
 void setup()
 {
-  //pinMode(13, OUTPUT );
-
-
   pinMode( Pins.sense_a, INPUT );
   pinMode( Pins.sense_b, INPUT );
   pinMode( Pins.sense_c, INPUT );
@@ -153,7 +149,20 @@ void setup()
   makeSenseStateToCommutatioTable();
   makeSafe();
 
-  //digitalWrite( 13, LOW );
+  //pinMode( Pins.dir_output, OUTPUT );
+  //pinMode( Pins.dir_input, INPUT_PULLUP );
+  //digitalWrite( Pins.dir_output, HIGH );
+
+ // if( digitalRead(Pins.dir_input) )
+ // {
+  //  CurrentDirection = CLOCKWISE;
+  //}
+ // else
+ // {
+  //  CurrentDirection = ANTI_CLOCKWISE;
+ // }
+
+ CurrentDirection = ANTI_CLOCKWISE;
 }
 
 //------------------------------------------------------------------------------
@@ -162,11 +171,6 @@ void loop()
 {
   if( readState() )
   {
-    //if( CurrentState.sense_a == 1 && CurrentState.sense_b == 0 && CurrentState.sense_c == 1 )
-    //{
-    //  digitalWrite( 13, HIGH );
-    //}
-
     makeSafe();
     setNewState();
   }
