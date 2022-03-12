@@ -10,6 +10,9 @@
             "includePath": [
                 "D:/_Projects/Project Stargate/Motor One/ControllerCode/MotorOneController/include",
                 "D:/_Projects/Project Stargate/Motor One/ControllerCode/MotorOneController/src",
+                "D:/_Projects/Project Stargate/Motor One/ControllerCode/MotorOneController/.pio/libdeps/nanoatmega328/Arduino-LiquidCrystal-I2C-library",
+                "C:/Users/Andy/.platformio/packages/framework-arduino-avr/libraries/Wire/src",
+                "D:/_Projects/Project Stargate/Motor One/ControllerCode/MotorOneController/.pio/libdeps/nanoatmega328/printf",
                 "C:/Users/Andy/.platformio/packages/framework-arduino-avr/cores/arduino",
                 "C:/Users/Andy/.platformio/packages/framework-arduino-avr/variants/eightanaloginputs",
                 "C:/Users/Andy/.platformio/lib/FastLED/src",
@@ -20,7 +23,6 @@
                 "C:/Users/Andy/.platformio/packages/framework-arduino-avr/libraries/HID/src",
                 "C:/Users/Andy/.platformio/packages/framework-arduino-avr/libraries/SPI/src",
                 "C:/Users/Andy/.platformio/packages/framework-arduino-avr/libraries/SoftwareSerial/src",
-                "C:/Users/Andy/.platformio/packages/framework-arduino-avr/libraries/Wire/src",
                 "C:/Users/Andy/.platformio/packages/tool-unity",
                 ""
             ],
@@ -29,6 +31,9 @@
                 "path": [
                     "D:/_Projects/Project Stargate/Motor One/ControllerCode/MotorOneController/include",
                     "D:/_Projects/Project Stargate/Motor One/ControllerCode/MotorOneController/src",
+                    "D:/_Projects/Project Stargate/Motor One/ControllerCode/MotorOneController/.pio/libdeps/nanoatmega328/Arduino-LiquidCrystal-I2C-library",
+                    "C:/Users/Andy/.platformio/packages/framework-arduino-avr/libraries/Wire/src",
+                    "D:/_Projects/Project Stargate/Motor One/ControllerCode/MotorOneController/.pio/libdeps/nanoatmega328/printf",
                     "C:/Users/Andy/.platformio/packages/framework-arduino-avr/cores/arduino",
                     "C:/Users/Andy/.platformio/packages/framework-arduino-avr/variants/eightanaloginputs",
                     "C:/Users/Andy/.platformio/lib/FastLED/src",
@@ -39,7 +44,6 @@
                     "C:/Users/Andy/.platformio/packages/framework-arduino-avr/libraries/HID/src",
                     "C:/Users/Andy/.platformio/packages/framework-arduino-avr/libraries/SPI/src",
                     "C:/Users/Andy/.platformio/packages/framework-arduino-avr/libraries/SoftwareSerial/src",
-                    "C:/Users/Andy/.platformio/packages/framework-arduino-avr/libraries/Wire/src",
                     "C:/Users/Andy/.platformio/packages/tool-unity",
                     ""
                 ]
