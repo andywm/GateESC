@@ -10,8 +10,18 @@ Description:
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 #include <stdint.h>
+#include "debug.h"
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
+
+/// Pin Modes
+enum EPinMode
+{
+	EInput,
+	EOutput,
+	//pullup, pulldowns?
+	EModeMax,
+};
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
@@ -44,13 +54,9 @@ private:
 		unsigned long since = 0;
 	} Timing;
 
-private:
-	void Init();
-	void TickTimers();
-	void Tick();
 
 public:
-	void Run();
+	static DebugSystem Debug;
 
 	// Halting Assert - asserts if the condition is false
 	static void Assert(bool bCondition, const char* Msg=nullptr);
@@ -64,5 +70,13 @@ public:
 
 	/// Wrapper function for Arduino DigitalWrite, will use FastDigitalWrite
 	/// if available.
+	static void PinMode(int Pin, EPinMode Mode);
+
+	/// Wrapper function for Arduino DigitalWrite, will use FastDigitalWrite
+	/// if available.
 	static void DigitalWrite(int Pin, bool bState);
+
+	/// Wrapper function for Arduino DigitalRead, will use FastDigitalRead
+	/// if available.
+	static int DigitalRead(int Pin);
 };

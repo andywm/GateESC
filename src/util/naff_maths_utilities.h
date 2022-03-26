@@ -6,10 +6,14 @@
 Description:
 	Some maths functions.
 ------------------------------------------------------------------------------*/
+#pragma once
 
-constexpr int CalcFactorial(int Input)
+struct Maths
 {
-	return Input > 0 
-		? Input * CalcFactorial(Input-1)
-		: 1;
-}
+	static constexpr int CalcFactorial(int Input)
+	{
+		return Input > 0 
+			? Input * CalcFactorial(Input-1)
+			: 1;
+	}
+};

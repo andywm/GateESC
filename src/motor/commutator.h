@@ -45,7 +45,7 @@ template<int PhaseCount>
 class Commutator
 {	
 public:
-	static constexpr int StepCount = CalcFactorial(PhaseCount);
+	static constexpr int StepCount = Maths::CalcFactorial(PhaseCount);
 	static constexpr int PinCount = PhaseCount * 2;
 	
 private:

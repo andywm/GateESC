@@ -52,7 +52,11 @@ int Commutator<PhaseCount>::DeclareCommutationStep_Imp( int Step, PackedECommuta
 template<int PhaseCount>
 void Commutator<PhaseCount>::DeclarePinsForPhase(int Phase, int SourcePin, int SinkPin)
 {
+	ControlPins[Phase*2+0] = SourcePin;
+	ControlPins[Phase*2+1] = SinkPin;
 
+	Framework::PinMode(SourcePin, EOutput);
+	Framework::PinMode(SinkPin, EOutput);
 }
 
 //------------------------------------------------------------------------------

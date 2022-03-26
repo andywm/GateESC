@@ -10,6 +10,7 @@ Description:
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 #include "motor/hall_sequence.h"
+#include "framework.h"
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
@@ -37,7 +38,9 @@ template<int PhaseCount>
 template<typename ...PackedState>
 void HallSequence<PhaseCount>::Bind_Arg(int Step, int SubIndex, int Value, PackedState...Args)
 {
-	Mapping[SubIndex][Step] = Value;
+	//add to hash
+	HashMapping[Step] |= (Value << SubIndex);
+	//Mapping[SubIndex+1][Step] = Value;
 	Bind_Arg(Step, ++SubIndex, Args...);
 }
 
@@ -55,13 +58,36 @@ template<int PhaseCount>
 void HallSequence<PhaseCount>::DeclarePinsForSensor(int SensorID, int Pin)
 {
 	SensorsPins[SensorID] = Pin;
-	pinMode(Pin, INPUT);
+	Framework::PinMode(Pin, EInput);
 }
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 template<int PhaseCount>
-void HallSequence<PhaseCount>::ReadState(int (&Value)[PhaseCount])
+int HallSequence<PhaseCount>::ReadState(int& NextStep)
 {
-	// Value =
+	LastState = CurrentState;
+
+	// Calc Hash
+	int Hash = 0;
+	for( int SensorID = 0; SensorID < PhaseCount; ++SensorID )
+	{
+		const int PinState = Framework::DigitalRead(SensorsPins[SensorID]);
+		Hash |= (PinState << SensorID);
+	}
+
+	// Find Step for Hash
+	for( int Step = 0; Step < Steps; ++Step )
+	{
+		if( HashMapping[Step] == Hash )
+		{
+			NextStep = (CurrentState = Step);
+			return CurrentState != LastState;
+		}
+	}
+
+	// Should Never Hit...
+	Framework::Assert(0, "Sensor Configuration is Invalid.");
+	NextStep = -1;
+	return false;
 }

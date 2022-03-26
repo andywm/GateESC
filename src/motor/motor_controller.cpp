@@ -6,8 +6,31 @@
 Description:
 	Interface for the motor.
 ------------------------------------------------------------------------------*/
-#include "framework.h"
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 #include "motor/motor_controller.h"
+#include "framework.h"
+#include "debug.h"
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+// Debug Info
+//------------------------------------------------------------------------------
+struct MotorControlPage : public DebugDisplayPage
+{
+	virtual void Update() override
+	{
+		//______L__|12345678901234567890|
+		SetLine(0, "Step #              ", step.Value);
+		SetLine(1, "Measured RPM ###    ", rpm.Value);
+		SetLine(2, "                    ");
+		SetLine(3, "                    ");
+	}
+	DebugValue<int> rpm = {Dirty};
+	DebugValue<int> step = {Dirty};
+} ControllerDebug;
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
@@ -19,9 +42,9 @@ void MotorController::Init()
 	Motor.DeclarePinsForPhase(2, Framework::Pinout.ESC_SOURCE_C, Framework::Pinout.ESC_SINK_C);
 
 	// Create IO Bindings for Hall Sensor Pins
-	Motor.DeclarePinsForSensor(0, Framework::Pinout.ESC_HALL_A);
-	Motor.DeclarePinsForSensor(1, Framework::Pinout.ESC_HALL_B);
-	Motor.DeclarePinsForSensor(2, Framework::Pinout.ESC_HALL_C);
+	Sequence.DeclarePinsForSensor(0, Framework::Pinout.ESC_HALL_A);
+	Sequence.DeclarePinsForSensor(1, Framework::Pinout.ESC_HALL_B);
+	Sequence.DeclarePinsForSensor(2, Framework::Pinout.ESC_HALL_C);
 
 	// Create Commutation Table
 	const int I =	Motor.DeclareCommutationStep(0, ESource, ESink, EFloat);
@@ -32,25 +55,39 @@ void MotorController::Init()
 	const int VI =	Motor.DeclareCommutationStep(5, EFloat, ESink, ESource);
 
 	// Bind Hall Sequence to Steps.
-	Sequence.Bind(I, 	0,0,0);
-	Sequence.Bind(II, 	0,0,0);
-	Sequence.Bind(III, 	0,0,0);
-	Sequence.Bind(IV, 	0,0,0);
-	Sequence.Bind(V, 	0,0,0);
-	Sequence.Bind(VI, 	0,0,0);
+	Sequence.Bind(I, 	1,0,1);
+	Sequence.Bind(II, 	1,0,0);
+	Sequence.Bind(III, 	1,1,0);
+	Sequence.Bind(IV, 	0,1,0);
+	Sequence.Bind(V, 	0,1,1);
+	Sequence.Bind(VI, 	0,0,1);
+
+	// Default Motor Spin Direction
+	Motor.SetMotorDirection(ESpinDirection::EClockwise);
+
+	// Add Debug Page
+	Framework::Debug.AddPage(ControllerDebug);
 }
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 void MotorController::Update()
 {
-	int ReadBuffer[3];
-	Sequence.ReadState(ReadBuffer);
+	int NextStep = -1;
+
+	if( Sequence.ReadState(NextStep) )
+	{
+		ControllerDebug.step = NextStep;
+
+		Motor.SetCommutatorStep(NextStep);
+		Motor.Execute();
+	}
 }
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 void MotorController::Stop()
 {
-
+	Motor.SetStopped();
+	Motor.Execute();
 }

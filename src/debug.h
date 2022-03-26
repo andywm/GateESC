@@ -9,10 +9,11 @@ Description:
 #pragma once
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-#include "core/framework_system.h"
 #include "util/naff_string_utilities.h"
+#include <stdint.h>
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
+#define _USING_DEBUG_DISPLAY
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
@@ -58,26 +59,17 @@ struct DebugValue
 	T Value;
 };
 
-struct DemoPage : public DebugDisplayPage
+class DebugSystem
 {
-	virtual void Update() override
-	{
-		//______L__|12345678901234567890|
-		SetLine(0, "Measured RPM ###    ", rpm.Value);
-		SetLine(1, "Measured RPM ###    ", rpm.Value);
-		SetLine(2, "Measured RPM ###    ", rpm.Value);
-		SetLine(3, "Measured RPM ###    ", rpm.Value);
-	}
-	DebugValue<int> rpm = {Dirty};
-};
+	static constexpr int MaxPages = 10;
+private:
+	DebugDisplayPage* Pages[MaxPages] = {nullptr};
+	int CurrentPage = 0;
+	int NextFreePage = 0;
 
-//class Debug final : public FameworkSystem
-//{
-//	virtual void Tick() override
-//	{
-//		DebugDisplayPage page;
-//		DebugDisplayPage::FormatLine(1, )
-//		page.Line1
-//
-//	}
-//};
+public:
+	void AddPage(DebugDisplayPage& Page );
+	void Init();
+	void SetPage(int Page);
+	void RenderCurrentPage();
+};
