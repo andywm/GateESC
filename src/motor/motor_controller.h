@@ -17,8 +17,8 @@ Description:
 class MotorController
 {
 private:
-	HallSequence<3> Sequence;
-	Commutator<3> Motor;
+	HallSequence Sequence = HallSequence(3);
+	Commutator Motor = Commutator(3);
 
 public:
 	void Init();

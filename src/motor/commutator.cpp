@@ -22,35 +22,26 @@ Description:
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-template<int PhaseCount>
-Commutator<PhaseCount>::Commutator()
-{
+//template<int PhaseCount>
+//Commutator<PhaseCount>::Commutator()
+//{;
 
+//}
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+Commutator::Commutator(int Phases)
+	: PhaseCount(Phases)
+	, StepCount(Maths::CalcFactorial(Phases))
+{
+	//I suppose leaking one-off allocations doesn't really matter on an MCU.
+	CommutationTable = new ECommutatorState[PhaseCount*StepCount];
+	ControlPins = new int[PhaseCount*2];
 }
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-template<int PhaseCount>
-template<typename ...PackedECommutatorState>
-int Commutator<PhaseCount>::DeclareCommutationStep_Imp( int Step, PackedECommutatorState... Args )
-{
-	static_assert(Step < 0 || Step > StepCount, "Invalid Step for Phase");
-	static_assert(sizeof...(Args) < PhaseCount, "Too Few Arguments");
-	static_assert(sizeof...(Args) > PhaseCount, "Too Many Arguments");
-
-	int lazyunpack[PhaseCount] = {Args...};
-	for( int i = 0; i< PhaseCount; ++i)
-	{
-		CommutationTable[i][Step] = lazyunpack[i];
-	}
-	
-	return Step;
-}
-
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
-template<int PhaseCount>
-void Commutator<PhaseCount>::DeclarePinsForPhase(int Phase, int SourcePin, int SinkPin)
+void Commutator::DeclarePinsForPhase(int Phase, int SourcePin, int SinkPin)
 {
 	ControlPins[Phase*2+0] = SourcePin;
 	ControlPins[Phase*2+1] = SinkPin;
@@ -61,8 +52,7 @@ void Commutator<PhaseCount>::DeclarePinsForPhase(int Phase, int SourcePin, int S
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-template<int PhaseCount>
-void Commutator<PhaseCount>::SetCommutatorStep(int Step)
+void Commutator::SetCommutatorStep(int Step)
 {
 	Framework::Assert(Step>=0 && Step<StepCount);
 
@@ -71,16 +61,21 @@ void Commutator<PhaseCount>::SetCommutatorStep(int Step)
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-template<int PhaseCount>
-void Commutator<PhaseCount>::SetStopped()
+void Commutator::SetMotorDirection(ESpinDirection Direction)
+{
+	SpinDirection = Direction;
+}
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void Commutator::SetStopped()
 {
 	CurrentStep = -1;
 }
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-template<int PhaseCount>
-void Commutator<PhaseCount>::Execute()
+void Commutator::Execute()
 {
 	//close all connections
 	for( int phase = 0; phase < PhaseCount; ++phase )
@@ -94,7 +89,7 @@ void Commutator<PhaseCount>::Execute()
 	{
 		for( int phase = 0; phase < PhaseCount; ++phase )
 		{
-			ECommutatorState phaseState = CommutationTable[phase][CurrentStep];
+			ECommutatorState phaseState = CommutationTable[CurrentStep*StepCount + phase];
 			if( phaseState > ECommutatorState::EFloat )
 			{
 				//anti-clockwise just flips source/sink for a given phase,

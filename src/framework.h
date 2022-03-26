@@ -31,20 +31,20 @@ enum EPinMode
 class Framework
 {
 public:
-	static const struct PinData
+	struct Pinout
 	{
-		uint8_t ESC_SOURCE_A	= 2;
-		uint8_t ESC_SINK_A		= 3;
-		uint8_t ESC_SOURCE_B	= 4;
-		uint8_t ESC_SINK_B		= 5;
-		uint8_t ESC_SOURCE_C	= 6;
-		uint8_t ESC_SINK_C		= 7;
-		uint8_t ESC_HALL_A		= 8;
-		uint8_t ESC_HALL_B		= 9;
-		uint8_t ESC_HALL_C		= 10;
-		uint8_t dir_output		= 11;
-		uint8_t dir_input		= 12;
-	} Pinout;
+		constexpr static uint8_t ESC_SOURCE_A	= 2;
+		constexpr static uint8_t ESC_SINK_A		= 3;
+		constexpr static uint8_t ESC_SOURCE_B	= 4;
+		constexpr static uint8_t ESC_SINK_B		= 5;
+		constexpr static uint8_t ESC_SOURCE_C	= 6;
+		constexpr static uint8_t ESC_SINK_C		= 7;
+		constexpr static uint8_t ESC_HALL_A		= 8;
+		constexpr static uint8_t ESC_HALL_B		= 9;
+		constexpr static uint8_t ESC_HALL_C		= 10;
+		constexpr static uint8_t dir_output		= 11;
+		constexpr static uint8_t dir_input		= 12;
+	};
 
 private:
 	static struct Timings

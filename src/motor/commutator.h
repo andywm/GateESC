@@ -41,16 +41,14 @@ enum class ESpinDirection
 // Commutator <N Phase>
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-template<int PhaseCount>
 class Commutator
 {	
-public:
-	static constexpr int StepCount = Maths::CalcFactorial(PhaseCount);
-	static constexpr int PinCount = PhaseCount * 2;
-	
 private:
+	const int PhaseCount;
+	const int StepCount;
+
 	/// All valid commutation steps for this motor.
-	ECommutatorState CommutationTable[PhaseCount][StepCount];
+	ECommutatorState* CommutationTable;
 
 	/// Which way to read the commutation table.
 	ESpinDirection SpinDirection;
@@ -59,24 +57,25 @@ private:
 	/// pin, do as follows ControlPins[$phase*2 + $pin_offset]
 	/// where $phase is the current phase id.
 	/// and $pin offset is 0 for sink, 1 for source.
-	int ControlPins[PinCount];
+	int* ControlPins;
 
 	/// Current access index into the commutation table. 
 	int CurrentStep;
-
-private:
-	// Internal DeclareCommutationStep (private template functions can go in cpp)
-	template<typename ...PackedECommutatorState>
-	int DeclareCommutationStep_Imp( int Step, PackedECommutatorState... Args );
 	
 public:
-	Commutator();
+	Commutator(int Phases);
 
 	/// Set which phase is doing what for this commutation step.
 	template<typename ...PackedECommutatorState>
 	int DeclareCommutationStep( int Step, PackedECommutatorState... Args )
 	{
-		return DeclareCommutationStep_Imp(Step, Args...);
+		ECommutatorState lazyunpack[PhaseCount] = {Args...};
+		for( int i = 0; i< PhaseCount; ++i)
+		{
+			CommutationTable[Step*StepCount + i] = lazyunpack[i];
+		}
+	
+		return Step;
 	}
 
 	/// Set io pins for phase control.

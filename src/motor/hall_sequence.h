@@ -10,6 +10,7 @@ Description:
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 #include "util/naff_maths_utilities.h"
+#include "framework.h"
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
@@ -18,11 +19,11 @@ Description:
 // HallSequence
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-template<int PhaseCount>
 class HallSequence
 {
 private:
-	static constexpr int Steps = Maths::CalcFactorial(PhaseCount);
+	const int PhaseCount;
+	const int Steps; //= Maths::CalcFactorial(PhaseCount);
 
 	/// Step I, ..., Step !N
 	/// layout i.e..  {1={1,..,.n}, ..., !N={1,...,n}}
@@ -30,15 +31,12 @@ private:
 	//int Mapping[PhaseCount][Steps];
 
 	//Stores a hash of the sensor map.
-	int HashMapping[Steps];
-	int SensorsPins[PhaseCount];
+	int* HashMapping;//[Steps];
+	int* SensorsPins;//[PhaseCount];
 	int LastState = -1;
 	int CurrentState = -1;
 
 private:
-	template<typename ...PackedState>
-	void Bind_Imp(int Step, PackedState...Args);
-
 	template<typename ...PackedState>
 	void Bind_Arg(int Step, int SubIndex, int Param, PackedState...Args);
 
@@ -46,10 +44,15 @@ private:
 	void Bind_Arg(int Step, int SubIndex);
 
 public:
+	HallSequence( int Phases );
+
 	template<typename ...PackedState>
 	void Bind(int Step, PackedState...Args)
 	{	
-		Bind_Imp(Step, Args...);
+		Framework::Assert( (int)sizeof...(Args) > Steps, "Too Many Steps" );
+		Framework::Assert( sizeof...(Args) == 0, "Too Few Steps" );
+
+		Bind_Arg(Step, 0, Args...);
 	}
 
 	void DeclarePinsForSensor(int SensorID, int Pin);

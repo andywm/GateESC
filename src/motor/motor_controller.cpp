@@ -37,14 +37,14 @@ struct MotorControlPage : public DebugDisplayPage
 void MotorController::Init()
 {
 	// Create IO Bindings for ESC Switcher Pins
-	Motor.DeclarePinsForPhase(0, Framework::Pinout.ESC_SOURCE_A, Framework::Pinout.ESC_SINK_A);
-	Motor.DeclarePinsForPhase(1, Framework::Pinout.ESC_SOURCE_B, Framework::Pinout.ESC_SINK_B);
-	Motor.DeclarePinsForPhase(2, Framework::Pinout.ESC_SOURCE_C, Framework::Pinout.ESC_SINK_C);
+	Motor.DeclarePinsForPhase(0, Framework::Pinout::ESC_SOURCE_A, Framework::Pinout::ESC_SINK_A);
+	Motor.DeclarePinsForPhase(1, Framework::Pinout::ESC_SOURCE_B, Framework::Pinout::ESC_SINK_B);
+	Motor.DeclarePinsForPhase(2, Framework::Pinout::ESC_SOURCE_C, Framework::Pinout::ESC_SINK_C);
 
 	// Create IO Bindings for Hall Sensor Pins
-	Sequence.DeclarePinsForSensor(0, Framework::Pinout.ESC_HALL_A);
-	Sequence.DeclarePinsForSensor(1, Framework::Pinout.ESC_HALL_B);
-	Sequence.DeclarePinsForSensor(2, Framework::Pinout.ESC_HALL_C);
+	Sequence.DeclarePinsForSensor(0, Framework::Pinout::ESC_HALL_A);
+	Sequence.DeclarePinsForSensor(1, Framework::Pinout::ESC_HALL_B);
+	Sequence.DeclarePinsForSensor(2, Framework::Pinout::ESC_HALL_C);
 
 	// Create Commutation Table
 	const int I =	Motor.DeclareCommutationStep(0, ESource, ESink, EFloat);

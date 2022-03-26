@@ -10,7 +10,6 @@ Description:
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 #include "motor/hall_sequence.h"
-#include "framework.h"
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
@@ -22,21 +21,18 @@ Description:
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-template<int PhaseCount>
-template<typename ...PackedState>
-void HallSequence<PhaseCount>::Bind_Imp(int Step, PackedState...Args)
+HallSequence::HallSequence( int Phases )
+	: PhaseCount(Phases)
+	, Steps(Maths::CalcFactorial(PhaseCount))
 {
-	Framework::Assert( sizeof...(Args) > Steps, "Too Many Steps" );
-	Framework::Assert( sizeof...(Args) < 0, "Too Few Steps" );
-
-	Bind_Arg(Step, 0, Args...);
+	SensorsPins = new int[PhaseCount];
+	HashMapping = new int[Steps];
 }
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-template<int PhaseCount>
 template<typename ...PackedState>
-void HallSequence<PhaseCount>::Bind_Arg(int Step, int SubIndex, int Value, PackedState...Args)
+void HallSequence::Bind_Arg(int Step, int SubIndex, int Value, PackedState...Args)
 {
 	//add to hash
 	HashMapping[Step] |= (Value << SubIndex);
@@ -46,16 +42,12 @@ void HallSequence<PhaseCount>::Bind_Arg(int Step, int SubIndex, int Value, Packe
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-template<int PhaseCount>
 template<typename ...PackedState>
-void HallSequence<PhaseCount>::Bind_Arg(int Step, int SubIndex)
-{
-}
+void HallSequence::Bind_Arg(int Step, int SubIndex) {}
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-template<int PhaseCount>
-void HallSequence<PhaseCount>::DeclarePinsForSensor(int SensorID, int Pin)
+void HallSequence::DeclarePinsForSensor(int SensorID, int Pin)
 {
 	SensorsPins[SensorID] = Pin;
 	Framework::PinMode(Pin, EInput);
@@ -63,8 +55,7 @@ void HallSequence<PhaseCount>::DeclarePinsForSensor(int SensorID, int Pin)
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-template<int PhaseCount>
-int HallSequence<PhaseCount>::ReadState(int& NextStep)
+int HallSequence::ReadState(int& NextStep)
 {
 	LastState = CurrentState;
 
