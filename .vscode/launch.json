@@ -12,7 +12,7 @@
             "type": "platformio-debug",
             "request": "launch",
             "name": "PIO Debug",
-            "executable": "D:/_Projects/Project Stargate/Motor One/ControllerCode/MotorOneController/.pio/build/nanoatmega328/firmware.elf",
+            "executable": "d:/_Projects/Project Stargate/Motor One/ControllerCode/MotorOneController/.pio/build/nanoatmega328/firmware.elf",
             "projectEnvName": "nanoatmega328",
             "toolchainBinDir": "C:/Users/Andy/.platformio/packages/toolchain-atmelavr/bin",
             "internalConsoleOptions": "openOnSessionStart",
@@ -25,10 +25,20 @@
             "type": "platformio-debug",
             "request": "launch",
             "name": "PIO Debug (skip Pre-Debug)",
-            "executable": "D:/_Projects/Project Stargate/Motor One/ControllerCode/MotorOneController/.pio/build/nanoatmega328/firmware.elf",
+            "executable": "d:/_Projects/Project Stargate/Motor One/ControllerCode/MotorOneController/.pio/build/nanoatmega328/firmware.elf",
             "projectEnvName": "nanoatmega328",
             "toolchainBinDir": "C:/Users/Andy/.platformio/packages/toolchain-atmelavr/bin",
             "internalConsoleOptions": "openOnSessionStart"
+        },
+        {
+            "type": "platformio-debug",
+            "request": "launch",
+            "name": "PIO Debug (without uploading)",
+            "executable": "d:/_Projects/Project Stargate/Motor One/ControllerCode/MotorOneController/.pio/build/nanoatmega328/firmware.elf",
+            "projectEnvName": "nanoatmega328",
+            "toolchainBinDir": "C:/Users/Andy/.platformio/packages/toolchain-atmelavr/bin",
+            "internalConsoleOptions": "openOnSessionStart",
+            "loadMode": "manual"
         }
     ]
 }

@@ -8,11 +8,11 @@
         {
             "name": "PlatformIO",
             "includePath": [
-                "D:/_Projects/Project Stargate/Motor One/ControllerCode/MotorOneController/include",
-                "D:/_Projects/Project Stargate/Motor One/ControllerCode/MotorOneController/src",
-                "D:/_Projects/Project Stargate/Motor One/ControllerCode/MotorOneController/.pio/libdeps/nanoatmega328/Arduino-LiquidCrystal-I2C-library",
+                "d:/_Projects/Project Stargate/Motor One/ControllerCode/MotorOneController/include",
+                "d:/_Projects/Project Stargate/Motor One/ControllerCode/MotorOneController/src",
+                "d:/_Projects/Project Stargate/Motor One/ControllerCode/MotorOneController/.pio/libdeps/nanoatmega328/Arduino-LiquidCrystal-I2C-library",
                 "C:/Users/Andy/.platformio/packages/framework-arduino-avr/libraries/Wire/src",
-                "D:/_Projects/Project Stargate/Motor One/ControllerCode/MotorOneController/.pio/libdeps/nanoatmega328/printf",
+                "d:/_Projects/Project Stargate/Motor One/ControllerCode/MotorOneController/.pio/libdeps/nanoatmega328/printf",
                 "C:/Users/Andy/.platformio/packages/framework-arduino-avr/cores/arduino",
                 "C:/Users/Andy/.platformio/packages/framework-arduino-avr/variants/eightanaloginputs",
                 "C:/Users/Andy/.platformio/lib/FastLED/src",
@@ -29,11 +29,11 @@
             "browse": {
                 "limitSymbolsToIncludedHeaders": true,
                 "path": [
-                    "D:/_Projects/Project Stargate/Motor One/ControllerCode/MotorOneController/include",
-                    "D:/_Projects/Project Stargate/Motor One/ControllerCode/MotorOneController/src",
-                    "D:/_Projects/Project Stargate/Motor One/ControllerCode/MotorOneController/.pio/libdeps/nanoatmega328/Arduino-LiquidCrystal-I2C-library",
+                    "d:/_Projects/Project Stargate/Motor One/ControllerCode/MotorOneController/include",
+                    "d:/_Projects/Project Stargate/Motor One/ControllerCode/MotorOneController/src",
+                    "d:/_Projects/Project Stargate/Motor One/ControllerCode/MotorOneController/.pio/libdeps/nanoatmega328/Arduino-LiquidCrystal-I2C-library",
                     "C:/Users/Andy/.platformio/packages/framework-arduino-avr/libraries/Wire/src",
-                    "D:/_Projects/Project Stargate/Motor One/ControllerCode/MotorOneController/.pio/libdeps/nanoatmega328/printf",
+                    "d:/_Projects/Project Stargate/Motor One/ControllerCode/MotorOneController/.pio/libdeps/nanoatmega328/printf",
                     "C:/Users/Andy/.platformio/packages/framework-arduino-avr/cores/arduino",
                     "C:/Users/Andy/.platformio/packages/framework-arduino-avr/variants/eightanaloginputs",
                     "C:/Users/Andy/.platformio/lib/FastLED/src",
@@ -49,7 +49,7 @@
                 ]
             },
             "defines": [
-                "PLATFORMIO=50101",
+                "PLATFORMIO=50205",
                 "ARDUINO_AVR_NANO",
                 "F_CPU=16000000L",
                 "ARDUINO_ARCH_AVR",
