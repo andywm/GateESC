@@ -78,6 +78,7 @@ void MotorController::Update()
 	if( Sequence.ReadState(NextStep) )
 	{
 		ControllerDebug.step = NextStep;
+		ControllerDebug.rpm = 0;
 
 		Motor.SetCommutatorStep(NextStep);
 		Motor.Execute();

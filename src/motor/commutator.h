@@ -53,10 +53,7 @@ private:
 	/// Which way to read the commutation table.
 	ESpinDirection SpinDirection;
 
-	/// Note the pins are stored in pairs of {sink, source}. To access a particular
-	/// pin, do as follows ControlPins[$phase*2 + $pin_offset]
-	/// where $phase is the current phase id.
-	/// and $pin offset is 0 for sink, 1 for source.
+	/// Note the pins are stored in pairs of {sink, source} for each phase.
 	int* ControlPins;
 
 	/// Current access index into the commutation table. 
