@@ -1,7 +1,5 @@
-//#include <Arduino.h>
+#include <Arduino.h>
 #include <math.h>
-//#include <LiquidCrystal_I2C.h>
-//#include "lcd_helper.h"
 #include "motor_one.h"
 //#include "debug.h"
 
@@ -9,6 +7,9 @@
 
 int main(int argc, char**argv)
 {
+	init();
+	Serial.begin(9600);
+	//delay(100);
 	MotorOne program;
 	program.Run();
 }

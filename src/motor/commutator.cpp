@@ -35,8 +35,13 @@ Commutator::Commutator(int Phases)
 //------------------------------------------------------------------------------
 void Commutator::DeclarePinsForPhase(int Phase, int SourcePin, int SinkPin)
 {
-	ControlPins[Phase*2+0] = SourcePin;
-	ControlPins[Phase*2+1] = SinkPin;
+	Framework::Message("Phase=%d, Source=%d, Sink=%d", Phase, SourcePin, SinkPin );
+
+	ControlPins[(Phase*2)+0] = SourcePin;
+	ControlPins[(Phase*2)+1] = SinkPin;
+
+	Framework::Message("Source=%d, Sink=%d",  ControlPins[(Phase*2)+0], ControlPins[(Phase*2)+1] );
+
 
 	Framework::PinMode(SourcePin, EOutput);
 	Framework::PinMode(SinkPin, EOutput);
@@ -81,12 +86,14 @@ void Commutator::Execute()
 	return;
 #endif
 
+	int values[10] = {0};
+
 	// write current commutator step state to io.
 	if( CurrentStep >= 0)
 	{
 		for( int phase = 0; phase < PhaseCount; ++phase )
 		{
-			ECommutatorState phaseState = CommutationTable[CurrentStep*StepCount + phase];
+			ECommutatorState phaseState = CommutationTable[CurrentStep*PhaseCount + phase];
 			if( phaseState > ECommutatorState::EFloat )
 			{
 				//anti-clockwise just flips source/sink for a given phase,
@@ -96,8 +103,15 @@ void Commutator::Execute()
 					? phaseState
 					: 0x1 >> phaseState
 					;
+
+				values[ControlPins[phase*2 + pinToEnable]] = 1;
 				Framework::DigitalWrite(ControlPins[phase*2 + pinToEnable], true); 
 			}
 		}
+		auto V = [](int v)->const char*
+		{
+			return v==1 ? "X" : "_"; 
+		};
+		Framework::Message("%s:%s|%s:%s|%s:%s",  V(values[2]), V(values[3]),V(values[4]),V(values[5]),V(values[6]),V(values[7]) );
 	}
 }

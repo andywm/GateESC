@@ -30,6 +30,20 @@ struct NaffSPrintfAutoFormat
 	}
 };
 
+/// Provide sprintf with formatting option for floats, provides %f
+template<> inline
+const char* NaffSPrintfAutoFormat::ResolveOutput(float&t)
+{
+	return "%f";
+}
+
+/// Provide sprintf with formatting option for int, provides %d
+template<> inline
+const char* NaffSPrintfAutoFormat::ResolveOutput(int&t)
+{
+	return "%d";
+}
+
 
 class NaffStringUtility
 {
@@ -39,7 +53,7 @@ public:
 	/// with the arguments provided.
 	/// Input and output buffers must be of the same size. This is not checked.
 	template<typename ...PackedArgs>
-	static void Format(char Output[], const char* Input, PackedArgs&&... Args)
+	static void Format(char*& Output, const char* Input, PackedArgs&&... Args)
 	{
 		//copy buffer verbatim.
 		memcpy(Output, Input, 20);
@@ -97,9 +111,9 @@ private:
 		{     
 			//format
 			char buffer[8];
-			int copyLen = snprintf(&buffer[0], 8, NaffSPrintfAutoFormat::ResolveOutput(Param), Param);
+			int copyLen = snprintf_(&buffer[0], 8, NaffSPrintfAutoFormat::ResolveOutput(Param), Param);
 			copyLen = copyLen > replaceLen ? replaceLen : copyLen;
-			
+
 			//clear the hashes in the destination buffer.
 			memset(&Output[0], ' ', replaceLen);
 			

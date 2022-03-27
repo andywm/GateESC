@@ -10,11 +10,12 @@ Description:
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 #include <stdint.h>
+#include <Arduino.h>
 #include "debug.h"
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
-#define DISABLE_MOTOR_EXEC
+//#define DISABLE_MOTOR_EXEC
 
 /// Pin Modes
 enum EPinMode
@@ -59,6 +60,14 @@ private:
 
 public:
 	static DebugSystem Debug;
+
+	template<typename... PackedArgs>
+	static void Message(const char* Msg, PackedArgs...Args)
+	{
+		char Buffer[32];
+		snprintf(Buffer,32,Msg, Args...);
+		Serial.println(Buffer);
+	}
 
 	// Halting Assert - asserts if the condition is false
 	static void Assert(bool bCondition, const char* Msg=nullptr);

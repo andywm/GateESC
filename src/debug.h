@@ -12,6 +12,7 @@ Description:
 #include <stdint.h>
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
+#include <Arduino.h>
 #include "util/naff_string_utilities.h"
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
@@ -30,8 +31,8 @@ struct DebugDisplayPage
 	template<typename ...PackedArgs>
 	void SetLine(uint8_t Line, const char* Msg, PackedArgs... Args)
 	{
-		//char test = LineData[0][0];
-		NaffStringUtility::Format(&LineData[20][Line], Msg, Args...);
+		char* ThisLine = &LineData[Line][0];
+		NaffStringUtility::Format(ThisLine, Msg, Args...);
 	}
 
 	virtual void Update() = 0;
@@ -49,10 +50,11 @@ struct DebugValue
 	DebugValue(bool&D) : Dirty(D) {};
 	DebugValue(bool&D, const T& Initial) : Dirty(D), Value(Initial) {};
 
-	T& operator=(const T&NewValue)
+	T operator=(const T&NewValue)
 	{
-		Dirty |= Value != NewValue;
+		Dirty |= (Value != NewValue);
 		Value = NewValue;
+
 		return Value;
 	}
 

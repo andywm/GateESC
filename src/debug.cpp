@@ -10,6 +10,8 @@ Description:
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 #include "debug.h"
+#include <Arduino.h>
+#include "framework.h"
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
@@ -60,7 +62,7 @@ void DebugSystem::RenderCurrentPage()
 		for( int LineID = 0; LineID < LineCount; ++LineID )
 		{
 			DisplayLCD.setCursor(0,LineID);
-			DisplayLCD.printstr(&Page->LineData[LineID][0]);	
+			DisplayLCD.printstr(&Page->LineData[LineID][0]);
 		}
 		Page->Dirty = false;
 	}

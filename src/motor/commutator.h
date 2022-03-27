@@ -69,7 +69,7 @@ public:
 		ECommutatorState lazyunpack[PhaseCount] = {Args...};
 		for( int i = 0; i< PhaseCount; ++i)
 		{
-			CommutationTable[Step*StepCount + i] = lazyunpack[i];
+			CommutationTable[Step*PhaseCount + i] = lazyunpack[i];
 		}
 	
 		return Step;

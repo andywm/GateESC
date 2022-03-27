@@ -46,6 +46,8 @@ void Framework::Assert(bool bCondition, const char* Msg/*=nullptr*/)
 {
 	if( bCondition == false )
 	{
+		Serial.println(Msg);
+		delay(1000);
 		//todo, serial write message if available.
 		Halt();
 	}
@@ -57,6 +59,8 @@ void Framework::Assert0(bool bCondition, const char* Msg/*=nullptr*/)
 {
 	if( bCondition == true )
 	{
+		Serial.println(Msg);
+		delay(1000);
 		//todo, serial write message if available.
 		Halt();
 	}
@@ -88,6 +92,7 @@ void Framework::PinMode(int Pin, EPinMode Mode)
 //-------------------------------------------------------------------------------
 void Framework::DigitalWrite(int Pin, bool bState)
 {
+	//Framework::Message("Pin=%d - Value=%d", Pin, (int)bState);
 	digitalWrite(Pin, bState);
 }
 

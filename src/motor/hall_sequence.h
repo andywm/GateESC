@@ -38,10 +38,17 @@ private:
 
 private:
 	template<typename ...PackedState>
-	void Bind_Arg(int Step, int SubIndex, int Param, PackedState...Args);
+	void Bind_Arg(int Step, int SubIndex, int Value, PackedState...Args)
+	{
+		//add to hash
+		HashMapping[Step] |= (Value << SubIndex);
+		Bind_Arg(Step, ++SubIndex, Args...);
+	}
 
 	template<typename ...PackedState>
-	void Bind_Arg(int Step, int SubIndex);
+	void Bind_Arg(int Step, int SubIndex) 
+	{
+	}
 
 public:
 	HallSequence( int Phases );
@@ -49,9 +56,11 @@ public:
 	template<typename ...PackedState>
 	void Bind(int Step, PackedState...Args)
 	{	
-		Framework::Assert( (int)sizeof...(Args) > Steps, "Too Many Steps" );
-		Framework::Assert( sizeof...(Args) == 0, "Too Few Steps" );
+		Framework::Assert( (int)sizeof...(Args) == PhaseCount, "Number of arguments doed not match number of sensors" );
+		Framework::Assert0( Step >= Steps, "Too Many Steps" );
+		Framework::Assert0( Step < 0, "Too Few Steps" );
 
+		HashMapping[Step] = 0;
 		Bind_Arg(Step, 0, Args...);
 	}
 

@@ -31,22 +31,6 @@ HallSequence::HallSequence( int Phases )
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-template<typename ...PackedState>
-void HallSequence::Bind_Arg(int Step, int SubIndex, int Value, PackedState...Args)
-{
-	//add to hash
-	HashMapping[Step] |= (Value << SubIndex);
-	//Mapping[SubIndex+1][Step] = Value;
-	Bind_Arg(Step, ++SubIndex, Args...);
-}
-
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
-template<typename ...PackedState>
-void HallSequence::Bind_Arg(int Step, int SubIndex) {}
-
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
 void HallSequence::DeclarePinsForSensor(int SensorID, int Pin)
 {
 	SensorsPins[SensorID] = Pin;
@@ -67,18 +51,19 @@ int HallSequence::ReadState(int& NextStep)
 		Hash |= (PinState << SensorID);
 	}
 
+	//Framework::Message("Debug = %d", Hash );
 	// Find Step for Hash
 	for( int Step = 0; Step < Steps; ++Step )
 	{
 		if( HashMapping[Step] == Hash )
 		{
-			NextStep = (CurrentState = Step);
+			CurrentState = Step;
+			NextStep = Step;
 			return CurrentState != LastState;
 		}
 	}
 
-	// Should Never Hit...
-	Framework::Assert(0, "Sensor Configuration is Invalid.");
+	// Should Never Hit... But just do nothing if it does.
 	NextStep = -1;
 	return false;
 }
