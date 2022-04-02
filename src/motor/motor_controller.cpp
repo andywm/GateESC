@@ -10,6 +10,7 @@ Description:
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 #include "motor/motor_controller.h"
+#include "motor/sequence_state.h"
 #include "framework.h"
 #include "debug.h"
 #include <Arduino.h>
@@ -78,6 +79,9 @@ void MotorController::Init()
 	// Default Motor Spin Direction
 	Motor.SetMotorDirection(ESpinDirection::EClockwise);
 
+	// Used for speed calculation.
+	SpeedControl.RotorMagnetCount = 30;
+
 	// Add Debug Page
 	Framework::Debug.AddPage(ControllerDebug);
 
@@ -89,14 +93,19 @@ void MotorController::Init()
 //------------------------------------------------------------------------------
 void MotorController::Update()
 {
-	int NextStep = -1;
+	SequenceState State;
+	Sequence.ReadState(State);
 
-	if( Sequence.ReadState(NextStep) )
+	SpeedControl.UpdateInputParamaters(State);
+	
+	if( State.UpdateCommutation )
 	{
-		ControllerDebug.step = NextStep;
+		
+
+		ControllerDebug.step = State.NextStep;
 		ControllerDebug.rpm = 0;
 
-		Motor.SetCommutatorStep(NextStep);
+		Motor.SetCommutatorStep(State.NextStep);
 		Motor.Execute();
 	}
 }

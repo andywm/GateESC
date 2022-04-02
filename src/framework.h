@@ -50,12 +50,12 @@ public:
 	};
 
 private:
-	static struct Timings
-	{
-		unsigned long last_timestamp = 0;
-		unsigned long this_timestamp = 0;
-		unsigned long since = 0;
-	} Timing;
+	//static struct Timings
+	//{
+	//	unsigned long last_timestamp = 0;
+	//	unsigned long this_timestamp = 0;
+	//	unsigned long since = 0;
+	//} Timing;
 
 
 public:
