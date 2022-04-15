@@ -11,26 +11,32 @@ Description:
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
+// If the difference is over half of uintmax64, then we've rolled over.
+constexpr TimeMicroSeconds UnreasonableDelta = static_cast<TimeMicroSeconds>(INT64_MAX);
+
 void Timer::Begin()
 {
-	this_timestamp = micros();
-	if( this_timestamp - last_timestamp > 0 )
-	{
-		since = this_timestamp - last_timestamp;
-	}
-	else if ( this_timestamp - last_timestamp > INT64_MAX )
-	{
-		since = UINT64_MAX - last_timestamp + this_timestamp;
-	}
-	last_timestamp = this_timestamp;	
+	Restart();
 }
 
 void Timer::Restart()
 {
-
+	StartTime = micros();
 }
 
-int Timer::ReadTime()
+TimeMicroSeconds Timer::ReadTime()
 {
+	TimeMicroSeconds CurrentTime = micros();
+	TimeMicroSeconds Since = 0ul;
 
+	if( CurrentTime - StartTime < UnreasonableDelta )
+	{
+		Since = CurrentTime - StartTime;
+	}
+	else
+	{
+		Since = UINT64_MAX - StartTime + CurrentTime;
+	}
+
+	return Since;
 }

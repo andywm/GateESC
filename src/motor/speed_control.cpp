@@ -10,6 +10,7 @@ Description:
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 #include "motor/speed_control.h"
+#include "framework.h"
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
@@ -21,26 +22,46 @@ Description:
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-void SpeedControl::UpdateInputParamaters(SequenceState& State)
+void SpeedControl::Init()
 {
-	if( State.Tick )
-	{
-		//w = da/dt
-		Time.ReadTime();
-		//6 degrees somehow? 120 (3 sensors, 180 deg apart) / 20 (40 magnets, 20 of readable polarity)
-
-
-		//float timeInSeconds = static_cast<float>(SpeedControl.time_since_last_change) * static_cast<float>(1e-6);
-		//float traversedAngle = static_cast<float>(tickDelta) * stepConstant;
-		//float radiansPerSecond = traversedAngle/timeInSeconds; //w = da/dt
-	}
+	Time.Begin();
+	RPM = 0;
 }
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-void SpeedControl::SetPoleCount( uint8_t Count )
+void SpeedControl::UpdateInputParamaters(SequenceState& State)
 {
-	PoleCount = Count;
+	Ticks += static_cast<int>(State.Tick );
+	State.Tick = false;
 
+	//average over multiple ticks
+	if( Ticks >=5 )
+	{
+		//w = da/dt => deg/sec
+		//conv to rpm => 60(s) / 360(deg) => 1/6 
+		//rpm => w  * (1/6) 
+	
+		const float AngularSpeedDegPerSecond = (TickAngle*Ticks) / (Time.ReadTime()*1e-6);
+		const float RPMf = AngularSpeedDegPerSecond / 6.0f;
 
+		Framework::Message("EPMF %.2f, Ticks %d, TA %d", RPMf, Ticks, TickAngle);
+
+		//round
+		RPM = static_cast<int>( RPMf + 0.5f );
+
+		//reset.
+		Time.Restart();
+		Ticks = 0;
+		// /State.Tick = false;		
+	}
+
+	State.CurrentRPM = RPM;
+}
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void SpeedControl::SetTickAngle( uint8_t Angle )
+{
+	TickAngle = Angle;
 }

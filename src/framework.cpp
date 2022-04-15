@@ -81,7 +81,8 @@ void Framework::PinMode(int Pin, EPinMode Mode)
 	static int ModeSelect[EPinMode::EModeMax] = 
 	{
 		INPUT,
-		OUTPUT
+		OUTPUT,
+		INPUT, //INPUT_PULLDOWN
 	};
 
 	pinMode(Pin, ModeSelect[Mode]);

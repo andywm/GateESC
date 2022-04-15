@@ -20,7 +20,8 @@ class MotorController
 private:
 	HallSequence Sequence = HallSequence(3);
 	Commutator Motor = Commutator(3);
-	SpeedControl SpeedControl;
+	SpeedControl SpeedController;
+	int Step = -1;
 
 public:
 	void Init();

@@ -80,7 +80,8 @@ void MotorController::Init()
 	Motor.SetMotorDirection(ESpinDirection::EClockwise);
 
 	// Used for speed calculation.
-	SpeedControl.RotorMagnetCount = 30;
+	SpeedController.SetTickAngle(12); // Sequence has 3 sensors, 120 deg apart and can detect 20 of the 40 magnets. So angle = 120 / 20 => 6
+	SpeedController.Init();
 
 	// Add Debug Page
 	Framework::Debug.AddPage(ControllerDebug);
@@ -95,17 +96,18 @@ void MotorController::Update()
 {
 	SequenceState State;
 	Sequence.ReadState(State);
-
-	SpeedControl.UpdateInputParamaters(State);
+	SpeedController.UpdateInputParamaters(State);
+	ControllerDebug.rpm = State.CurrentRPM;
 	
 	if( State.UpdateCommutation )
 	{
-		
-
 		ControllerDebug.step = State.NextStep;
-		ControllerDebug.rpm = 0;
-
 		Motor.SetCommutatorStep(State.NextStep);
+		Step = State.NextStep;
+	}
+
+	if(Step != -1)
+	{
 		Motor.Execute();
 	}
 }

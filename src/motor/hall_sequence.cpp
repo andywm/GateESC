@@ -51,10 +51,6 @@ void HallSequence::ReadState(SequenceState& State)
 		Hash |= (PinState << SensorID);
 	}
 
-	State.Tick = (Hash & (Hash-1)) == 1; // Tick when exactly 1 Sensor is active.
-	State.UpdateCommutation = false;
-	State.NextStep = -1;
-
 	//Framework::Message("Debug = %d", Hash );
 	// Find Step for Hash
 	for( int Step = 0; Step < Steps; ++Step )
@@ -64,6 +60,8 @@ void HallSequence::ReadState(SequenceState& State)
 			CurrentState = Step;
 			State.NextStep = Step;
 			State.UpdateCommutation = (CurrentState != LastState);
+			State.Tick = (Hash & (Hash-1)) == 0 && State.UpdateCommutation; // Tick when exactly 1 Sensor is active.
+			break;
 		}
 	}
 }

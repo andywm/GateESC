@@ -11,7 +11,8 @@ Description:
 
 struct SequenceState
 {
-    bool UpdateCommutation;
-	int NextStep;
-	bool Tick; 
+    bool UpdateCommutation = false;
+	bool Tick = false; 
+	int NextStep = -1;
+	int CurrentRPM = 0;
 };

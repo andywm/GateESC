@@ -23,11 +23,12 @@ Description:
 class SpeedControl
 {
 public:
+	void Init();
 	void UpdateInputParamaters(SequenceState& State);
-	void SetPoleCount( uint8_t Count );
-	void SetSlotCount( uint8_t Count );
+	void SetTickAngle( uint8_t Angle );
 
 	Timer Time;
-	uint8_t PoleCount;
-	uint8_t SlotCount;
+	uint8_t TickAngle;
+	int RPM;
+	int Ticks=0;
 };
