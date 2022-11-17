@@ -35,8 +35,7 @@ private:
 	//Stores a hash of the sensor map.
 	int* HashMapping;//[Steps];
 	int* SensorsPins;//[PhaseCount];
-	int LastState = -1;
-	int CurrentState = -1;
+	int LastStep {-1};
 
 private:
 	template<typename ...PackedState>
@@ -67,5 +66,5 @@ public:
 	}
 
 	void DeclarePinsForSensor(int SensorID, int Pin);
-	void ReadState(SequenceState& State);
+	SequenceState ReadState();
 };

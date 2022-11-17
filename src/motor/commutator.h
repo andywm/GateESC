@@ -25,6 +25,8 @@ enum ECommutatorState
 	ESource = 1, 	// Connected to vcc
 };
 
+using PinOffset = ECommutatorState;
+
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 /// Motor Spin Direction

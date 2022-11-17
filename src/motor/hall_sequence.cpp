@@ -39,9 +39,9 @@ void HallSequence::DeclarePinsForSensor(int SensorID, int Pin)
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-void HallSequence::ReadState(SequenceState& State)
+SequenceState HallSequence::ReadState()
 {
-	LastState = CurrentState;
+	SequenceState State;
 
 	// Calc Hash
 	int Hash = 0;
@@ -51,17 +51,24 @@ void HallSequence::ReadState(SequenceState& State)
 		Hash |= (PinState << SensorID);
 	}
 
-	//Framework::Message("Debug = %d", Hash );
+	//Framework::Message("Debug Hash= %d", Hash );
 	// Find Step for Hash
 	for( int Step = 0; Step < Steps; ++Step )
 	{
 		if( HashMapping[Step] == Hash )
 		{
-			CurrentState = Step;
-			State.NextStep = Step;
-			State.UpdateCommutation = (CurrentState != LastState);
-			State.Tick = (Hash & (Hash-1)) == 0 && State.UpdateCommutation; // Tick when exactly 1 Sensor is active.
+			State.UpdateCommutation = (Step != LastStep);
+			//State.Tick = (Hash & (Hash-1)) == 0 && State.UpdateCommutation; // Tick when exactly 1 Sensor is active.
+			State.Step = Step;
+			LastStep = Step;
+
+			//if( State.UpdateCommutation )
+			//{
+			//	//Framework::Message("Hash= %d, Step= %d", Hash, Step );
+			//}
 			break;
 		}
 	}
+
+	return State;
 }

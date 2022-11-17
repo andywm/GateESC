@@ -37,8 +37,9 @@ void MotorOne::Run()
 void MotorOne::Init()
 {
 	Control.Init();
-	Framework::Debug.Init();
-	Framework::Debug.SetPage(0);
+	Control.SetForward();
+	//Framework::Debug.Init();
+	//Framework::Debug.SetPage(0);
 }
 
 //------------------------------------------------------------------------------
@@ -46,5 +47,5 @@ void MotorOne::Init()
 void MotorOne::Loop()
 {
 	Control.Update();
-	Framework::Debug.RenderCurrentPage();
+	//Framework::Debug.RenderCurrentPage();
 }

@@ -16,7 +16,6 @@ int main(int argc, char**argv)
 void setup()
 {
 	Serial.begin(9600);
-	delay(5000);
 	MotorOne program;
 	program.Run();
 }

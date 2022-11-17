@@ -20,7 +20,7 @@ public:
 	TimeMicroSeconds ReadTime();
 
 private:
-	TimeMicroSeconds StartTime = 0;
+	TimeMicroSeconds StartTime{0};
 	//unsigned long this_timestamp = 0;
 	//unsigned long since = 0;
 };	

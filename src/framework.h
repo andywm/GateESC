@@ -38,24 +38,24 @@ public:
 	struct Pinout
 	{
 #if defined(IS_NANO_BUILD)
-		constexpr static uint8_t ESC_SOURCE_A	= 2;
-		constexpr static uint8_t ESC_SINK_A		= 3;
-		constexpr static uint8_t ESC_SOURCE_B	= 4;
-		constexpr static uint8_t ESC_SINK_B		= 5;
-		constexpr static uint8_t ESC_SOURCE_C	= 6;
-		constexpr static uint8_t ESC_SINK_C		= 7;
+		constexpr static uint8_t ESC_SINK_A		= 2;
+		constexpr static uint8_t ESC_SOURCE_A	= 3;
+		constexpr static uint8_t ESC_SINK_B		= 4;
+		constexpr static uint8_t ESC_SOURCE_B	= 5;
+		constexpr static uint8_t ESC_SINK_C		= 6;
+		constexpr static uint8_t ESC_SOURCE_C	= 7;
 		constexpr static uint8_t ESC_HALL_A		= 8;
 		constexpr static uint8_t ESC_HALL_B		= 9;
 		constexpr static uint8_t ESC_HALL_C		= 10;
 		constexpr static uint8_t dir_output		= 11;
 		constexpr static uint8_t dir_input		= 12;
 #elif defined(IS_BLUEPILL_BUILD)
-		constexpr static uint8_t ESC_SOURCE_A	= PB12;
-		constexpr static uint8_t ESC_SINK_A		= PB13;
-		constexpr static uint8_t ESC_SOURCE_B	= PB14;
-		constexpr static uint8_t ESC_SINK_B		= PB15;
-		constexpr static uint8_t ESC_SOURCE_C	= PA8;
-		constexpr static uint8_t ESC_SINK_C		= PA9;
+		constexpr static uint8_t ESC_SINK_A		= PA8;
+		constexpr static uint8_t ESC_SOURCE_A	= PA9;
+		constexpr static uint8_t ESC_SINK_B		= PB12;
+		constexpr static uint8_t ESC_SOURCE_B	= PB13;
+		constexpr static uint8_t ESC_SINK_C		= PB14;
+		constexpr static uint8_t ESC_SOURCE_C	= PB15;
 		constexpr static uint8_t ESC_HALL_A		= PA15;
 		constexpr static uint8_t ESC_HALL_B		= PB3;
 		constexpr static uint8_t ESC_HALL_C		= PB4;

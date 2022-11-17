@@ -21,10 +21,11 @@ private:
 	HallSequence Sequence = HallSequence(3);
 	Commutator Motor = Commutator(3);
 	SpeedControl SpeedController;
-	int Step = -1;
 
 public:
 	void Init();
 	void Update();
 	void Stop();
+	void SetForward();
+	void SetBackward();
 };

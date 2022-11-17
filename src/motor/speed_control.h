@@ -24,11 +24,11 @@ class SpeedControl
 {
 public:
 	void Init();
-	void UpdateInputParamaters(SequenceState& State);
-	void SetTickAngle( uint8_t Angle );
+	int MeasureRPM(const SequenceState& State);
+	void ConfigureMeasureRPM( uint8_t Phase, uint8_t Angle );
 
 	Timer Time;
-	uint8_t TickAngle;
-	int RPM;
-	int Ticks=0;
+	uint8_t TickAngle{0};
+	int TickPhase{0};
+	int RPM{0};
 };

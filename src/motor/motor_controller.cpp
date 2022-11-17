@@ -80,11 +80,12 @@ void MotorController::Init()
 	Motor.SetMotorDirection(ESpinDirection::EClockwise);
 
 	// Used for speed calculation.
-	SpeedController.SetTickAngle(12); // Sequence has 3 sensors, 120 deg apart and can detect 20 of the 40 magnets. So angle = 120 / 20 => 6
+	//SpeedController.SetTickAngle(12); // Sequence has 3 sensors, 120 deg apart and can detect 20 of the 40 magnets. So angle = 120 / 20 => 6
+	SpeedController.ConfigureMeasureRPM(I, 18);
 	SpeedController.Init();
 
 	// Add Debug Page
-	Framework::Debug.AddPage(ControllerDebug);
+	//Framework::Debug.AddPage(ControllerDebug);
 
 	Serial.println("Add Debug Page... Done");
 	delay(100);
@@ -94,20 +95,13 @@ void MotorController::Init()
 //------------------------------------------------------------------------------
 void MotorController::Update()
 {
-	SequenceState State;
-	Sequence.ReadState(State);
-	SpeedController.UpdateInputParamaters(State);
-	ControllerDebug.rpm = State.CurrentRPM;
+	SequenceState State = Sequence.ReadState(); 
+	//ControllerDebug.rpm = SpeedController.MeasureRPM(State);
 	
 	if( State.UpdateCommutation )
 	{
-		ControllerDebug.step = State.NextStep;
-		Motor.SetCommutatorStep(State.NextStep);
-		Step = State.NextStep;
-	}
-
-	if(Step != -1)
-	{
+		ControllerDebug.step = State.Step;
+		Motor.SetCommutatorStep(State.Step);
 		Motor.Execute();
 	}
 }
@@ -118,4 +112,18 @@ void MotorController::Stop()
 {
 	Motor.SetStopped();
 	Motor.Execute();
+}
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void MotorController::SetForward()
+{
+	Motor.SetMotorDirection(ESpinDirection::EClockwise);
+}
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void MotorController::SetBackward()
+{
+	Motor.SetMotorDirection(ESpinDirection::EAntiClockwise);
 }
