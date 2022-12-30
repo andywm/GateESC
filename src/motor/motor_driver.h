@@ -10,6 +10,7 @@ Description:
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 #include "util/naff_maths_utilities.h"
+#include "util/timer.h"
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
@@ -64,6 +65,8 @@ private:
 	/// ActivePins
 	int ActivePins[2] = {-1,-1};
 	
+	//PWM
+	float Duty {0.8f};
 public:
 	MotorDriver(int Phases);
 
@@ -79,6 +82,8 @@ public:
 	
 		return Step;
 	}
+
+	void Ready();
 
 	/// Set io pins for phase control.
 	/// 1. SourcePin - gate for vcc mosfet.

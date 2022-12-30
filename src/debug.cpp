@@ -15,6 +15,8 @@ Description:
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
+#define USE_SERIAL_DEBUG 0
+
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 DebugSystem::DebugSystem(int Width, int Height, int DeviceAddress/*=DEFAULT_LCD_I2C_ADDR*/)
@@ -59,7 +61,9 @@ void DebugSystem::Process()
 				return;
 			}
 
+#if USE_SERIAL_DEBUG
 			Framework::Message("Debug - Was Rated Limited...");
+#endif //USE_SERIAL_DEBUG
 			LCDMetadata.State = Metadata_LCD::EState::Idle;
 			//explit fallthrough to Idle.
 		}
@@ -69,8 +73,9 @@ void DebugSystem::Process()
 			{
 				return;
 			}
-
+#if USE_SERIAL_DEBUG
 			Framework::Message("Debug - Was Idle");
+#endif //USE_SERIAL_DEBUG
 			LCDMetadata.State = Metadata_LCD::EState::WritingBuffer;
 			//explit fallthrough to WritingBuffer
 		}
@@ -88,7 +93,10 @@ void DebugSystem::Process()
 		}
 	case Metadata_LCD::EState::ClearBuffer:
 		{
+#if USE_SERIAL_DEBUG
 			Framework::Message("Debug - Clear...");
+#endif //USE_SERIAL_DEBUG
+
 			//clear is expensive, ~3ms, so swtich to a rate limit.
 			DisplayLCD.clear();
 
@@ -110,7 +118,10 @@ bool DebugSystem::IsRateLimited()
 //------------------------------------------------------------------------------
 void DebugSystem::SetRatedLimited()
 {
+#if USE_SERIAL_DEBUG
 	Framework::Message("Debug - Lockout");
+#endif //USE_SERIAL_DEBUG
+
 	LCDMetadata.State = Metadata_LCD::EState::RateLimited;
 	LimitTimer.Restart();
 }
@@ -152,10 +163,14 @@ bool DebugSystem::PrimeScreenBuffer()
 
 	//Prime screen buffer.
 	memcpy(&ScreenBuffer, &Buffer, 21*4);
+
+#if USE_SERIAL_DEBUG
 	Framework::Message("1: %s", &ScreenBuffer[0][0]);
 	Framework::Message("2: %s", &ScreenBuffer[1][0]);
 	Framework::Message("3: %s", &ScreenBuffer[2][0]);
 	Framework::Message("4: %s", &ScreenBuffer[3][0]);
+#endif //USE_SERIAL_DEBUG
+
 	return true;
 }
 
@@ -188,8 +203,11 @@ bool DebugSystem::WriteToScreenBuffer()
 			if(Update & CharMask)
 			{
 				Update &= ~CharMask;
-
+				
+#if USE_SERIAL_DEBUG
 				Framework::Message("Writing Pos L=%d, C=%d: %c", LineIdx, CharIdx, ScreenBuffer[LineIdx][CharIdx]);
+#endif //USE_SERIAL_DEBUG
+
 				//Single char, takes about 1.5ms...
 				DisplayLCD.setCursor(CharIdx,LineIdx);
 				DisplayLCD.print(ScreenBuffer[LineIdx][CharIdx]);

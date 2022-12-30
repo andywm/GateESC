@@ -38,17 +38,15 @@ public:
 	struct Pinout
 	{
 #if defined(IS_NANO_BUILD)
-		constexpr static uint8_t ESC_SINK_A		= 2;
-		constexpr static uint8_t ESC_SOURCE_A	= 3;
-		constexpr static uint8_t ESC_SINK_B		= 4;
-		constexpr static uint8_t ESC_SOURCE_B	= 5;
+		constexpr static uint8_t ESC_SOURCE_A	= 11;
+		constexpr static uint8_t ESC_SOURCE_B	= 10;
+		constexpr static uint8_t ESC_SOURCE_C	= 9;
+		constexpr static uint8_t ESC_SINK_A		= 8;
+		constexpr static uint8_t ESC_SINK_B		= 7;
 		constexpr static uint8_t ESC_SINK_C		= 6;
-		constexpr static uint8_t ESC_SOURCE_C	= 7;
-		constexpr static uint8_t ESC_HALL_A		= 8;
-		constexpr static uint8_t ESC_HALL_B		= 9;
-		constexpr static uint8_t ESC_HALL_C		= 10;
-		constexpr static uint8_t dir_output		= 11;
-		constexpr static uint8_t dir_input		= 12;
+		constexpr static uint8_t ESC_HALL_A		= 4;
+		constexpr static uint8_t ESC_HALL_B		= 3;
+		constexpr static uint8_t ESC_HALL_C		= 2;
 #elif defined(IS_BLUEPILL_BUILD)
 		constexpr static uint8_t ESC_SINK_A		= PA8;
 		constexpr static uint8_t ESC_SOURCE_A	= PA9;
@@ -105,4 +103,7 @@ public:
 	/// Wrapper function for Arduino DigitalRead, will use FastDigitalRead
 	/// if available.
 	static int DigitalRead(int Pin);
+
+	/// Wrapper function for Arduino AnalogWrite, for interface consistency.
+	static void AnalogWrite(int Pin, int8_t PwmValue);
 };

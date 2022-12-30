@@ -31,6 +31,10 @@ MotorDriver::MotorDriver(int Phases)
 	ControlPins = new int[PhaseCount*2];
 }
 
+void MotorDriver::Ready()
+{
+}
+
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 void MotorDriver::DeclarePinsForPhase(int Phase, int SourcePin, int SinkPin)
@@ -94,25 +98,23 @@ void MotorDriver::UpdateCommutator()
 		Framework::DigitalWrite(ControlPins[Phase*2 + PinOffset::ESource], false); 
 	}
 
-	int PinIndex = 0;
-
 	// convert current commutator step state to io pins
 	if( CurrentStep >= 0)
 	{
-		for( int phase = 0; phase < PhaseCount; ++phase )
+		for( int Phase = 0; Phase < PhaseCount; ++Phase )
 		{
-			ECommutatorState StateForPhase = CommutationTable[CurrentStep*PhaseCount + phase];
+			ECommutatorState StateForPhase = CommutationTable[CurrentStep*PhaseCount + Phase];
 			if( StateForPhase > ECommutatorState::EFloat )
 			{
 				//anti-clockwise just flips source/sink for a given phase,
 				//so we can just bit twiddle it. Sequencing also has to be inverted
 				//but that is handled external to this class anyway.
-				const int pinToEnable = (SpinDirection == ESpinDirection::EClockwise) 
+				const int SourceOrSinkOffset = (SpinDirection == ESpinDirection::EClockwise) 
 					? StateForPhase
-					: 0x1 >> StateForPhase;				
+					: 0x1 >> StateForPhase;		
 
 				// Cache high pins, will be modulated by pwm in Drive()
-				ActivePins[PinIndex++] = phase*2 + pinToEnable; 
+				ActivePins[SourceOrSinkOffset] = Phase*2 + SourceOrSinkOffset;
 			}
 		}
 	}
@@ -124,10 +126,14 @@ void MotorDriver::Drive()
 {
 	if( ActivePins[0] != -1 && ActivePins[1] != -1 )
 	{
-		Framework::DigitalWrite(ControlPins[ActivePins[0]], true); 
-		Framework::DigitalWrite(ControlPins[ActivePins[1]], true);
+		Framework::Message( "Digital: %d", ControlPins[ActivePins[0]] );
+		Framework::Message( "Analog: %d", ControlPins[ActivePins[1]] );
 
-		// just emulate old behaviour for now, and set once per update.
+
+		Framework::DigitalWrite(ControlPins[ActivePins[0]], true);
+		Framework::AnalogWrite(ControlPins[ActivePins[1]], 180); 
+
+		//handled, for now just output constant pwm, no control loop for speed.
 		ActivePins[0] = -1;
 		ActivePins[1] = -1;
 	}

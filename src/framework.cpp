@@ -103,3 +103,11 @@ int Framework::DigitalRead(int Pin)
 {
 	return static_cast<int>(digitalRead(Pin));
 }
+
+//-------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------
+void Framework::AnalogWrite(int Pin, int8_t PwmValue)
+{
+	//Framework::Message("Pin=%d - Value=%d", Pin, (int)bState);
+	analogWrite(Pin, PwmValue);
+}

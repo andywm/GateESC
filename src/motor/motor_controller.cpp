@@ -80,7 +80,9 @@ void MotorController::Init()
 
 	// Default Motor Spin Direction
 	Motor.SetMotorDirection(ESpinDirection::EClockwise);
+	Motor.Ready();
 	Sensors.RPM_Calculation.Time.Begin();
+
 
 	// Add Debug Page
 	Framework::Debug.AddPage(ControllerDebug);
