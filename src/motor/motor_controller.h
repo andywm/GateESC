@@ -17,8 +17,8 @@ Description:
 class MotorController
 {
 private:
-	MotorSensors Sensors = MotorSensors(3);
-	MotorDriver Motor = MotorDriver(3);
+	MotorSensors Sensors;
+	MotorDriver Motor;
 
 public:
 	void Init();

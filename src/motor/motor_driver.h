@@ -9,6 +9,7 @@ Description:
 #pragma once
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
+#include "motor/global_motor.h"
 #include "util/naff_maths_utilities.h"
 #include "util/timer.h"
 //------------------------------------------------------------------------------
@@ -19,14 +20,11 @@ Description:
 /// Commutation TriState for a phase
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-enum ECommutatorState
+enum PinOffset
 {
-	EFloat = -1,	// Connected to neither ground or vcc
 	ESink = 0, 		// Connected to ground
 	ESource = 1, 	// Connected to vcc
 };
-
-using PinOffset = ECommutatorState;
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
@@ -39,6 +37,12 @@ enum class ESpinDirection
 	EAntiClockwise
 };
 
+struct MotorWinding
+{
+	int Sink;
+	int Source;
+};
+
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 // Commutator <N Phase>
@@ -47,41 +51,30 @@ enum class ESpinDirection
 class MotorDriver
 {	
 private:
-	const int PhaseCount;
-	const int StepCount;
+	int RegisteredWinding {0};
 
 	/// All valid commutation steps for this motor.
-	ECommutatorState* CommutationTable;
+	//ECommutatorState* CommutationTable;
+
+	MotorWinding WindingTable[GlobalMotor::StepCount];
+	int WindingLookupCW[GlobalMotor::StepCount];
+	int WindingLookupACW[GlobalMotor::StepCount];
 
 	/// Which way to read the commutation table.
 	ESpinDirection SpinDirection;
 
 	/// Note the pins are stored in pairs of {sink, source} for each phase.
-	int* ControlPins;
+	int ControlPins[GlobalMotor::PhaseCount*2];
 
 	/// Current access index into the commutation table. 
-	int CurrentStep;
+	int CurrentStep {-1};
 
 	/// ActivePins
-	int ActivePins[2] = {-1,-1};
+	MotorWinding ActiveWinding;
 	
 	//PWM
 	float Duty {0.8f};
 public:
-	MotorDriver(int Phases);
-
-	/// Set which phase is doing what for this commutation step.
-	template<typename ...PackedECommutatorState>
-	int DeclareCommutationStep( int Step, PackedECommutatorState... Args )
-	{
-		ECommutatorState lazyunpack[PhaseCount] = {Args...};
-		for( int i = 0; i< PhaseCount; ++i)
-		{
-			CommutationTable[Step*PhaseCount + i] = lazyunpack[i];
-		}
-	
-		return Step;
-	}
 
 	void Ready();
 
@@ -89,6 +82,15 @@ public:
 	/// 1. SourcePin - gate for vcc mosfet.
 	/// 2. SinkPin - gate for ground mosfet.
 	void DeclarePinsForPhase(int Phase, int SourcePin, int SinkPin);
+
+	/// Declare Winding Pair Sink => Source
+	int DeclareWinding(int SinkPhase, int SourcePhase);
+
+	/// Bind Input State to Winding ID for clockwise spin
+	void BindClockwiseWinding(int State, int WindingIdx);
+
+	/// Bind Input State to Winding ID for anti-clockwise spin
+	void BindAntiClockwiseWinding(int State, int WindingIdx);
 
 	/// Set commutator state from commutation table for the current step index.
 	void SetCommutatorStep(int Step);
@@ -100,7 +102,7 @@ public:
 	void SetStopped();
 
 	/// Write the current state to the io register to command the mosfet driver circuit.
-	void UpdateCommutator();
+	void CloseAllWindings();
 
 	/// Drive ESC hardware
 	void Drive();

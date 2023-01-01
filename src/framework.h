@@ -44,9 +44,9 @@ public:
 		constexpr static uint8_t ESC_SINK_A		= 8;
 		constexpr static uint8_t ESC_SINK_B		= 7;
 		constexpr static uint8_t ESC_SINK_C		= 6;
-		constexpr static uint8_t ESC_HALL_A		= 4;
-		constexpr static uint8_t ESC_HALL_B		= 3;
-		constexpr static uint8_t ESC_HALL_C		= 2;
+		constexpr static uint8_t ESC_HALL_1		= 4;
+		constexpr static uint8_t ESC_HALL_2		= 3;
+		constexpr static uint8_t ESC_HALL_3		= 2;
 #elif defined(IS_BLUEPILL_BUILD)
 		constexpr static uint8_t ESC_SINK_A		= PA8;
 		constexpr static uint8_t ESC_SOURCE_A	= PA9;

@@ -15,26 +15,35 @@ Description:
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-// HallSequence
+// MotorSensors
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-MotorSensors::MotorSensors( int Phases )
-	: PhaseCount(Phases)
-	, Steps(Maths::CalcFactorial(PhaseCount))
+void MotorSensors::DeclareHallPins(int Pin1, int Pin2, int Pin3)
 {
-	SensorsPins = new int[PhaseCount];
-	HashMapping = new int[Steps];
+	Framework::Message(" Hall 1; pin %d", Pin1 );
+	Framework::PinMode(Pin1, EInput);
+	SensorsPins[0] = Pin1;
+
+	Framework::Message(" Hall 2; pin %d", Pin2 );
+	Framework::PinMode(Pin2, EInput);
+	SensorsPins[1] = Pin2;
+
+	Framework::Message(" Hall 3; pin %d", Pin3 );
+	Framework::PinMode(Pin3, EInput);
+	SensorsPins[2] = Pin3;
 }
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-void MotorSensors::DeclarePinsForSensor(int SensorID, int Pin)
+int MotorSensors::DeclareSensorState(int H1, int H2, int H3)
 {
-	SensorsPins[SensorID] = Pin;
-	Framework::PinMode(Pin, EInput);
+	const int State = RegisteredStates++;
+
+	HashMapping[State] = H1 << 0 | H2 << 1 | H3 << 2;
+	return State;
 }
 
 //------------------------------------------------------------------------------
@@ -54,7 +63,7 @@ void MotorSensors::CalculateRPM()
 		const float AngularSpeedDegPerSecond = RPM_Calculation.StepAngle / (RPM_Calculation.Time.ReadTime()*1e-6);
 		const float RPMf = AngularSpeedDegPerSecond / 6.0f;
 
-		Framework::Message("EPMF %.2f, TA %d", RPMf, RPM_Calculation.StepAngle);
+		//Framework::Message("EPMF %.2f, TA %d", RPMf, RPM_Calculation.StepAngle);
 
 		//round
 		RPM = static_cast<int>( RPMf + 0.5f );
@@ -70,7 +79,7 @@ void MotorSensors::ReadState()
 {
 	// Calc Hash
 	int Hash = 0;
-	for( int SensorID = 0; SensorID < PhaseCount; ++SensorID )
+	for( int SensorID = 0; SensorID < GlobalMotor::PhaseCount; ++SensorID )
 	{
 		const int PinState = Framework::DigitalRead(SensorsPins[SensorID]);
 		Hash |= (PinState << SensorID);
@@ -78,7 +87,7 @@ void MotorSensors::ReadState()
 
 	//Framework::Message("Debug Hash= %d", Hash );
 	// Find Step for Hash
-	for( int Step = 0; Step < Steps; ++Step )
+	for( int Step = 0; Step < GlobalMotor::StepCount; ++Step )
 	{
 		if( HashMapping[Step] == Hash )
 		{

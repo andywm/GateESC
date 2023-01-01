@@ -41,48 +41,63 @@ struct MotorControlPage : public DebugPage
 	DebugValue<int> step = {Dirty};
 } ControllerDebug;
 
+
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 void MotorController::Init()
 {
+	enum Phases { A,B,C };
+	Serial.println("===Config===");
+
 	// Create IO Bindings for ESC Switcher Pins
-	Motor.DeclarePinsForPhase(0, Framework::Pinout::ESC_SOURCE_A, Framework::Pinout::ESC_SINK_A);
-	Motor.DeclarePinsForPhase(1, Framework::Pinout::ESC_SOURCE_B, Framework::Pinout::ESC_SINK_B);
-	Motor.DeclarePinsForPhase(2, Framework::Pinout::ESC_SOURCE_C, Framework::Pinout::ESC_SINK_C);
+	Motor.DeclarePinsForPhase(A, Framework::Pinout::ESC_SOURCE_A, Framework::Pinout::ESC_SINK_A);
+	Motor.DeclarePinsForPhase(B, Framework::Pinout::ESC_SOURCE_B, Framework::Pinout::ESC_SINK_B);
+	Motor.DeclarePinsForPhase(C, Framework::Pinout::ESC_SOURCE_C, Framework::Pinout::ESC_SINK_C);
 
 	// Create IO Bindings for Hall Sensor Pins
-	Sensors.DeclarePinsForSensor(0, Framework::Pinout::ESC_HALL_A);
-	Sensors.DeclarePinsForSensor(1, Framework::Pinout::ESC_HALL_B);
-	Sensors.DeclarePinsForSensor(2, Framework::Pinout::ESC_HALL_C);
+	Sensors.DeclareHallPins(Framework::Pinout::ESC_HALL_1, Framework::Pinout::ESC_HALL_2, Framework::Pinout::ESC_HALL_3);
 
-	// Create Commutation Table
-	const int I =	Motor.DeclareCommutationStep(0, ESource, ESink, EFloat);
-	const int II =	Motor.DeclareCommutationStep(1, ESource, EFloat, ESink);
-	const int III =	Motor.DeclareCommutationStep(2, EFloat, ESource, ESink);
-	const int IV =	Motor.DeclareCommutationStep(3, ESink, ESource, EFloat);
-	const int V =	Motor.DeclareCommutationStep(4, ESink, EFloat, ESource);
-	const int VI =	Motor.DeclareCommutationStep(5, EFloat, ESink, ESource);
-
-	// Bind Hall Sequence to Steps.
-	Sensors.Bind(I, 	1,0,1);
-	Sensors.Bind(II, 	1,0,0);
-	Sensors.Bind(III, 	1,1,0);
-	Sensors.Bind(IV, 	0,1,0);
-	Sensors.Bind(V, 	0,1,1);
-	Sensors.Bind(VI, 	0,0,1);
+	// Declare Valid Hall States
+	const int State_101 = Sensors.DeclareSensorState(1,0,1);
+	const int State_100 = Sensors.DeclareSensorState(1,0,0);
+	const int State_110 = Sensors.DeclareSensorState(1,1,0);
+	const int State_010 = Sensors.DeclareSensorState(0,1,0);
+	const int State_011 = Sensors.DeclareSensorState(0,1,1);
+	const int State_001 = Sensors.DeclareSensorState(0,0,1);
 
 	//Set Speed Measurement Constants
-	Sensors.RPM_Calculation.MeasureOnStep = I;
+	Sensors.RPM_Calculation.MeasureOnStep = State_100;
 	Sensors.RPM_Calculation.StepAngle = 18;
 
-	Serial.println("Motor is Configured...");
+	// Create Windings; Sink to Source
+	const int Winding_AB = Motor.DeclareWinding(A, B);
+	const int Winding_AC = Motor.DeclareWinding(A, C);
+	const int Winding_BA = Motor.DeclareWinding(B, A);
+	const int Winding_BC = Motor.DeclareWinding(B, C);
+	const int Winding_CA = Motor.DeclareWinding(C, A);
+	const int Winding_CB = Motor.DeclareWinding(C, B);
+
+	//Clockwise State|Response
+	Motor.BindClockwiseWinding(State_101, Winding_BA);
+	Motor.BindClockwiseWinding(State_100, Winding_CA);
+	Motor.BindClockwiseWinding(State_110, Winding_CB);
+	Motor.BindClockwiseWinding(State_010, Winding_AB);
+	Motor.BindClockwiseWinding(State_011, Winding_AC);
+	Motor.BindClockwiseWinding(State_001, Winding_BC);
+
+	//Anti-Clockwise State|Response
+	Motor.BindAntiClockwiseWinding(State_101, Winding_AB);
+	Motor.BindAntiClockwiseWinding(State_100, Winding_CB);
+	Motor.BindAntiClockwiseWinding(State_110, Winding_AC);
+	Motor.BindAntiClockwiseWinding(State_010, Winding_BC);
+	Motor.BindAntiClockwiseWinding(State_011, Winding_CA);
+	Motor.BindAntiClockwiseWinding(State_001, Winding_BA);
+
+	Serial.println("Motor Ready...");
 	delay(100);
 
-	// Default Motor Spin Direction
-	Motor.SetMotorDirection(ESpinDirection::EClockwise);
 	Motor.Ready();
 	Sensors.RPM_Calculation.Time.Begin();
-
 
 	// Add Debug Page
 	Framework::Debug.AddPage(ControllerDebug);

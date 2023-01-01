@@ -9,28 +9,19 @@ Description:
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
+#include "motor/motor_driver.h"
 #include "framework.h"
-#include "motor_driver.h"
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-// Commutator
+// MotorDriver
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-MotorDriver::MotorDriver(int Phases)
-	: PhaseCount(Phases)
-	, StepCount(Maths::CalcFactorial(Phases))
-{
-	//I suppose leaking one-off allocations doesn't really matter on an MCU.
-	CommutationTable = new ECommutatorState[PhaseCount*StepCount];
-	ControlPins = new int[PhaseCount*2];
-}
-
 void MotorDriver::Ready()
 {
 }
@@ -39,13 +30,10 @@ void MotorDriver::Ready()
 //------------------------------------------------------------------------------
 void MotorDriver::DeclarePinsForPhase(int Phase, int SourcePin, int SinkPin)
 {
-	Framework::Message("Phase=%d, Source=%d, Sink=%d", Phase, SourcePin, SinkPin );
+	Framework::Message(" Phase %d; Source %d; Sink %d", Phase, SourcePin, SinkPin );
 
 	ControlPins[(Phase*2)+PinOffset::ESink] = SinkPin;
 	ControlPins[(Phase*2)+PinOffset::ESource] = SourcePin;
-
-	Framework::Message("Source=%d, Sink=%d",  ControlPins[(Phase*2)+PinOffset::ESource], ControlPins[(Phase*2)+PinOffset::ESink] );
-
 
 	Framework::PinMode(SourcePin, EOutput);
 	Framework::PinMode(SinkPin, EOutput);
@@ -53,14 +41,45 @@ void MotorDriver::DeclarePinsForPhase(int Phase, int SourcePin, int SinkPin)
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
+int MotorDriver::DeclareWinding(int SinkPhase, int SourcePhase)
+{
+	const int WindingIdx = RegisteredWinding++;
+
+	WindingTable[WindingIdx].Sink = (SinkPhase*2) + PinOffset::ESink;
+	WindingTable[WindingIdx].Source = (SourcePhase*2)+ PinOffset::ESource;
+
+	return WindingIdx;
+}
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void MotorDriver::BindClockwiseWinding(int State, int WindingIdx)
+{
+	WindingLookupCW[State] = WindingIdx;
+}
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void MotorDriver::BindAntiClockwiseWinding(int State, int WindingIdx)
+{
+	WindingLookupACW[State] = WindingIdx;
+}
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void MotorDriver::SetCommutatorStep(int Step)
 {
-	Framework::Assert(Step>=0 && Step<StepCount);
+	Framework::Assert(Step >= 0 && Step < GlobalMotor::StepCount);
 
 	if( Step != CurrentStep )
 	{
 		CurrentStep = Step;
-		UpdateCommutator();
+		Framework::Message( "Step %d", CurrentStep );
+		
+		const int WindingIdx = SpinDirection == ESpinDirection::EClockwise? WindingLookupCW[Step] : WindingLookupACW[Step];
+		ActiveWinding = WindingTable[WindingIdx];
+
+		CloseAllWindings();
 	}
 }
 
@@ -80,61 +99,38 @@ void MotorDriver::SetStopped()
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-const char* DebugCommutatorState(ECommutatorState State)
-{
-	static const char* commutatorStateToDebugString[] = {"0", "-", "+"};
-	const int index = State + 1;
-	return commutatorStateToDebugString[index];
-}
-
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
-void MotorDriver::UpdateCommutator()
+void MotorDriver::CloseAllWindings()
 {
 	//close all connections
-	for( int Phase = 0; Phase < PhaseCount; ++Phase )
+	for( int Phase = 0; Phase < GlobalMotor::PhaseCount; ++Phase )
 	{
 		Framework::DigitalWrite(ControlPins[Phase*2 + PinOffset::ESink], false); 
 		Framework::DigitalWrite(ControlPins[Phase*2 + PinOffset::ESource], false); 
 	}
+}
 
-	// convert current commutator step state to io pins
-	if( CurrentStep >= 0)
-	{
-		for( int Phase = 0; Phase < PhaseCount; ++Phase )
-		{
-			ECommutatorState StateForPhase = CommutationTable[CurrentStep*PhaseCount + Phase];
-			if( StateForPhase > ECommutatorState::EFloat )
-			{
-				//anti-clockwise just flips source/sink for a given phase,
-				//so we can just bit twiddle it. Sequencing also has to be inverted
-				//but that is handled external to this class anyway.
-				const int SourceOrSinkOffset = (SpinDirection == ESpinDirection::EClockwise) 
-					? StateForPhase
-					: 0x1 >> StateForPhase;		
-
-				// Cache high pins, will be modulated by pwm in Drive()
-				ActivePins[SourceOrSinkOffset] = Phase*2 + SourceOrSinkOffset;
-			}
-		}
-	}
+const char* DebugActiveWinding(int Winding, int Offset)
+{
+	int Phase = (Winding - Offset)/2;
+	return Phase == 0? "A" : Phase==1 ? "B" : "C";
 }
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 void MotorDriver::Drive()
 {
-	if( ActivePins[0] != -1 && ActivePins[1] != -1 )
+	if( ActiveWinding.Sink != -1 && ActiveWinding.Source != -1 )
 	{
-		Framework::Message( "Digital: %d", ControlPins[ActivePins[0]] );
-		Framework::Message( "Analog: %d", ControlPins[ActivePins[1]] );
+		//Framework::Message( "High %s ; Low %s", DebugActiveWinding(ActiveWinding.Source, PinOffset::ESource),  DebugActiveWinding(ActiveWinding.Sink, PinOffset::ESink ));
+		//Framework::Message( "High %d ; Low %d", ControlPins[ActiveWinding.Source], ControlPins[ActiveWinding.Sink]);
+		//Framework::Message( "-----------------------------");
 
-
-		Framework::DigitalWrite(ControlPins[ActivePins[0]], true);
-		Framework::AnalogWrite(ControlPins[ActivePins[1]], 180); 
+		Framework::DigitalWrite(ControlPins[ActiveWinding.Source], true);
+		Framework::DigitalWrite(ControlPins[ActiveWinding.Sink], true);
+		//Framework::AnalogWrite(ControlPins[ActivePins[1]], 180); 
 
 		//handled, for now just output constant pwm, no control loop for speed.
-		ActivePins[0] = -1;
-		ActivePins[1] = -1;
+		ActiveWinding.Source = -1;
+		ActiveWinding.Sink = -1;
 	}
 }

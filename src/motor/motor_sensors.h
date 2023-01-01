@@ -10,10 +10,10 @@ Description:
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 #include "util/naff_maths_utilities.h"
+#include "motor/global_motor.h"
 #include "framework.h"
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
@@ -31,17 +31,14 @@ public:
 
 	}RPM_Calculation;
 private:
-	const int PhaseCount;
-	const int Steps; //= Maths::CalcFactorial(PhaseCount);
-
-	/// Step I, ..., Step !N
-	/// layout i.e..  {1={1,..,.n}, ..., !N={1,...,n}}
-	/// each segment represents the hall state for a step.
-	//int Mapping[PhaseCount][Steps];
+	int RegisteredStates {0};
 
 	//Stores a hash of the sensor map.
-	int* HashMapping;//[Steps];
-	int* SensorsPins;//[PhaseCount];
+	int HashMapping[GlobalMotor::StepCount];
+	int SensorsPins[GlobalMotor::PhaseCount];
+
+	int LastHash = -1;
+	int CountHash = 0;
 
 	int RPM {0};
 	int CommutatorStep {-1};
@@ -50,37 +47,11 @@ private:
 private:
 	void ReadState();
 	void CalculateRPM();
-	
-	template<typename ...PackedState>
-	void Bind_Arg(int Step, int SubIndex, int Value, PackedState...Args)
-	{
-		//add to hash
-		HashMapping[Step] |= (Value << SubIndex);
-		Bind_Arg(Step, ++SubIndex, Args...);
-	}
-
-	template<typename ...PackedState>
-	void Bind_Arg(int Step, int SubIndex) 
-	{
-	}
-
 
 public:
 	//Initialisation
-	MotorSensors( int Phases );
-
-	template<typename ...PackedState>
-	void Bind(int Step, PackedState...Args)
-	{	
-		Framework::Assert( (int)sizeof...(Args) == PhaseCount, "Number of arguments doed not match number of sensors" );
-		Framework::Assert0( Step >= Steps, "Too Many Steps" );
-		Framework::Assert0( Step < 0, "Too Few Steps" );
-
-		HashMapping[Step] = 0;
-		Bind_Arg(Step, 0, Args...);
-	}
-
-	void DeclarePinsForSensor(int SensorID, int Pin);
+	void DeclareHallPins(int Pin1, int Pin2, int Pin3);
+	int DeclareSensorState(int H1, int H2, int H3);
 
 	// Update
 	void Sense();
@@ -89,5 +60,4 @@ public:
 	bool GetChanged() const;
 	int GetStep() const;
 	int GetRPM() const;
-
 };
