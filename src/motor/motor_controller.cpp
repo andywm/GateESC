@@ -27,11 +27,15 @@ struct MotorControlPage : public DebugPage
 		{
 			Dirty = false;
 
+#if defined(IS_SENSOR_DEBUG_BUILD)
+			SetLine(0, "Angle ###*          ", angle.Value);
+#else
 			//______L__|12345678901234567890|
 			SetLine(0, "Step #              ", step.Value);
 			SetLine(1, "Measured RPM ###    ", rpm.Value);
-			SetLine(2, "                    ");
+			SetLine(2, "Angle ###*          ", angle.Value);
 			SetLine(3, "                    ");
+#endif
 			
 			return true;
 		}
@@ -39,6 +43,7 @@ struct MotorControlPage : public DebugPage
 	}
 	DebugValue<int> rpm = {Dirty};
 	DebugValue<int> step = {Dirty};
+	DebugValue<int> angle = {Dirty};
 } ControllerDebug;
 
 
@@ -56,6 +61,8 @@ void MotorController::Init()
 
 	// Create IO Bindings for Hall Sensor Pins
 	Sensors.DeclareHallPins(Framework::Pinout::ESC_HALL_1, Framework::Pinout::ESC_HALL_2, Framework::Pinout::ESC_HALL_3);
+
+	Sensors.DeclarePositionPins(Framework::Pinout::POS_SENSE);
 
 	// Declare Valid Hall States
 	const int State_101 = Sensors.DeclareSensorState(1,0,1);
@@ -111,14 +118,17 @@ void MotorController::Update()
 
 	//Debug Stuff
 	ControllerDebug.rpm = Sensors.GetRPM();
-	ControllerDebug.step = Sensors.GetStep();	
+	ControllerDebug.step = Sensors.GetStep();
+	ControllerDebug.angle = Sensors.GetAngle();
 
 	//Speed PID Loop
 	//... Modulate PWM?
 
 	//Motor Control
+#if !defined(IS_SENSOR_DEBUG_BUILD)
 	Motor.SetCommutatorStep(Sensors.GetStep());
 	Motor.Drive();
+#endif
 }
 
 //------------------------------------------------------------------------------

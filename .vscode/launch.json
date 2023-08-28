@@ -12,9 +12,9 @@
             "type": "platformio-debug",
             "request": "launch",
             "name": "PIO Debug",
-            "executable": "/home/andy/Documents/2023-GateESC/GateESC/.pio/build/nanoatmega328/firmware.elf",
+            "executable": "C:/Users/AndyWM/Documents/GitHub/GateESC/.pio/build/nanoatmega328/firmware.elf",
             "projectEnvName": "nanoatmega328",
-            "toolchainBinDir": "/home/andy/.platformio/packages/toolchain-atmelavr/bin",
+            "toolchainBinDir": "C:/Users/AndyWM/.platformio/packages/toolchain-atmelavr/bin",
             "internalConsoleOptions": "openOnSessionStart",
             "preLaunchTask": {
                 "type": "PlatformIO",
@@ -25,18 +25,18 @@
             "type": "platformio-debug",
             "request": "launch",
             "name": "PIO Debug (skip Pre-Debug)",
-            "executable": "/home/andy/Documents/2023-GateESC/GateESC/.pio/build/nanoatmega328/firmware.elf",
+            "executable": "C:/Users/AndyWM/Documents/GitHub/GateESC/.pio/build/nanoatmega328/firmware.elf",
             "projectEnvName": "nanoatmega328",
-            "toolchainBinDir": "/home/andy/.platformio/packages/toolchain-atmelavr/bin",
+            "toolchainBinDir": "C:/Users/AndyWM/.platformio/packages/toolchain-atmelavr/bin",
             "internalConsoleOptions": "openOnSessionStart"
         },
         {
             "type": "platformio-debug",
             "request": "launch",
             "name": "PIO Debug (without uploading)",
-            "executable": "/home/andy/Documents/2023-GateESC/GateESC/.pio/build/nanoatmega328/firmware.elf",
+            "executable": "C:/Users/AndyWM/Documents/GitHub/GateESC/.pio/build/nanoatmega328/firmware.elf",
             "projectEnvName": "nanoatmega328",
-            "toolchainBinDir": "/home/andy/.platformio/packages/toolchain-atmelavr/bin",
+            "toolchainBinDir": "C:/Users/AndyWM/.platformio/packages/toolchain-atmelavr/bin",
             "internalConsoleOptions": "openOnSessionStart",
             "loadMode": "manual"
         }

@@ -37,6 +37,8 @@ private:
 	int HashMapping[GlobalMotor::StepCount];
 	int SensorsPins[GlobalMotor::PhaseCount];
 
+	static int PositionTick;
+
 	int LastHash = -1;
 	int CountHash = 0;
 
@@ -46,12 +48,14 @@ private:
 
 private:
 	void ReadState();
+	static void PositionInterrupt();
 	void CalculateRPM();
 
 public:
 	//Initialisation
 	void DeclareHallPins(int Pin1, int Pin2, int Pin3);
 	int DeclareSensorState(int H1, int H2, int H3);
+	void DeclarePositionPins(int Pin);
 
 	// Update
 	void Sense();
@@ -60,4 +64,5 @@ public:
 	bool GetChanged() const;
 	int GetStep() const;
 	int GetRPM() const;
+	int GetAngle() const;
 };

@@ -125,7 +125,7 @@ void MotorDriver::Drive()
 		//Framework::Message( "High %d ; Low %d", ControlPins[ActiveWinding.Source], ControlPins[ActiveWinding.Sink]);
 		//Framework::Message( "-----------------------------");
 
-		Framework::DigitalWrite(ControlPins[ActiveWinding.Source], true);
+		Framework::AnalogWrite(ControlPins[ActiveWinding.Source], 100);
 		Framework::DigitalWrite(ControlPins[ActiveWinding.Sink], true);
 		//Framework::AnalogWrite(ControlPins[ActivePins[1]], 180); 
 

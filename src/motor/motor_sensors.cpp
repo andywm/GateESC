@@ -46,12 +46,28 @@ int MotorSensors::DeclareSensorState(int H1, int H2, int H3)
 	return State;
 }
 
+int MotorSensors::PositionTick = 0;
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void MotorSensors::DeclarePositionPins(int Pin)
+{
+	Framework::Message("Position Sensor; pin %d", Pin );
+	Framework::PinMode(Pin, EInput);
+
+	attachInterrupt(digitalPinToInterrupt(Pin), PositionInterrupt, RISING);
+}
+
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 void MotorSensors::Sense()
 {
 	ReadState();
 	CalculateRPM();
+
+	if( PositionTick >= 360 )
+	{
+		PositionTick = 0;
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -99,6 +115,48 @@ void MotorSensors::ReadState()
 	}
 }
 
+//enum class InterruptTimecode : uint8_t
+//{
+//	None, 
+//	LowMicroseconds,	//Order of 10us
+//	HighMicroseconds,   //Order of 100us
+//	LowMiliseconds,		//Order of 1ms
+//	HighMiliseconds,	//Order of 10ms
+//	Eternity,			//Order of > 100ms
+//};
+
+//uint8_t InterruptPointer=0;
+//InterruptTimecode InterruptBuffer[32];
+
+void MotorSensors::PositionInterrupt()
+{
+	static unsigned long last_interrupt_time = 0;
+	unsigned long interrupt_time = micros();
+	unsigned long diff = interrupt_time - last_interrupt_time;
+	//InterruptTimecode Type = InterruptTimecode::Eternity;
+	last_interrupt_time = interrupt_time;
+
+	if (diff > 100)
+	{
+		PositionTick++;
+		//Type = InterruptTimecode::LowMicroseconds;
+	}
+	//else if (diff < 1000)
+	//{
+	//	Type = InterruptTimecode::HighMicroseconds;
+	//}
+	//else if(diff < 1000)
+	//{
+	//	Type = InterruptTimecode::LowMiliseconds;
+	//}
+	//else if(diff < 10000)
+	//{
+	//	Type = InterruptTimecode::HighMiliseconds;
+	//}
+
+	//InterruptBuffer[InterruptPointer++] = Type;
+}
+
 bool MotorSensors::GetChanged() const
 {
 	return bChanged;
@@ -114,3 +172,7 @@ int MotorSensors::GetRPM() const
 	return RPM;
 }
 
+int MotorSensors::GetAngle() const
+{
+	return PositionTick;
+}
