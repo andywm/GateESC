@@ -33,7 +33,7 @@ public:
 		ConfigData Config;
 		Timer MeasurementTimer;
 		uint8_t RPM;
-		float TimeInterval;
+		float TimeInterval {0.0f};
 
 	}Tachometer;
 

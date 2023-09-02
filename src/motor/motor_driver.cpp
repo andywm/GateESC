@@ -92,9 +92,17 @@ void MotorDriver::SetMotorDirection(ESpinDirection Direction)
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-void MotorDriver::SetStopped()
+void MotorDriver::StartMotor()
 {
-	CurrentStep = -1;
+	MotorOn = true;
+}
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void MotorDriver::StopMotor()
+{
+	CloseAllWindings();
+	MotorOn = false;
 }
 
 //------------------------------------------------------------------------------
@@ -109,11 +117,15 @@ void MotorDriver::CloseAllWindings()
 	}
 }
 
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void MotorDriver::SetDuty(uint8_t PWM)
 {
 	Duty = PWM;
 }
 
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 const char* DebugActiveWinding(int Winding, int Offset)
 {
 	int Phase = (Winding - Offset)/2;
@@ -124,7 +136,7 @@ const char* DebugActiveWinding(int Winding, int Offset)
 //------------------------------------------------------------------------------
 void MotorDriver::Drive()
 {
-	if( ActiveWinding.Sink != -1 && ActiveWinding.Source != -1 )
+	if( MotorOn && ActiveWinding.Sink != -1 && ActiveWinding.Source != -1 )
 	{
 		//Framework::Message( "High %s ; Low %s", DebugActiveWinding(ActiveWinding.Source, PinOffset::ESource),  DebugActiveWinding(ActiveWinding.Sink, PinOffset::ESink ));
 		//Framework::Message( "High %d ; Low %d", ControlPins[ActiveWinding.Source], ControlPins[ActiveWinding.Sink]);
@@ -133,7 +145,6 @@ void MotorDriver::Drive()
 		Framework::AnalogWrite(ControlPins[ActiveWinding.Source], Duty);
 		Framework::DigitalWrite(ControlPins[ActiveWinding.Sink], true);
 
-		//handled, for now just output constant pwm, no control loop for speed.
 		ActiveWinding.Source = -1;
 		ActiveWinding.Sink = -1;
 	}

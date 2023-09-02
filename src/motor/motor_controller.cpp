@@ -34,7 +34,7 @@ struct MotorControlPage : public DebugPage
 			SetLine(0, "Step #              ", step.Value);
 			SetLine(1, "Measured RPM ###    ", rpm.Value);
 			SetLine(2, "Angle ###*          ", angle.Value);
-			SetLine(3, "                    ");
+			SetLine(3, "PWM ###             ", pwm.Value);
 #endif
 			
 			return true;
@@ -44,6 +44,7 @@ struct MotorControlPage : public DebugPage
 	DebugValue<int> rpm = {Dirty};
 	DebugValue<int> step = {Dirty};
 	DebugValue<int> angle = {Dirty};
+	DebugValue<int> pwm = {Dirty};
 } ControllerDebug;
 
 
@@ -104,10 +105,12 @@ void MotorController::Init()
 	SpeedPID.SetKp(1);
 	SpeedPID.SetKi(0);
 	SpeedPID.SetKd(0);
+	SpeedPID.SetInputRange(0.0f, 90.0f); //motor max rpm is 90.
+	SpeedPID.SetOutputRange(0, 255); //output in pwm, assume linear for now.
 
 	Serial.println("Motor Ready...");
 	delay(100);
-
+ 
 	Motor.Ready();
 	Sensors.Tachometer.MeasurementTimer.Begin();
 
@@ -126,8 +129,12 @@ void MotorController::Update()
 	ControllerDebug.step = Sensors.GetStep();
 	ControllerDebug.angle = Sensors.GetAngle();
 
+	uint8_t pwm = SpeedPID.PID(Sensors.GetRPM(), Sensors.GetTimeInterval());
+	ControllerDebug.pwm = pwm;
+
 	//Motor Control
 #if !defined(IS_SENSOR_DEBUG_BUILD)
+	Motor.SetDuty(pwm);
 	Motor.SetCommutatorStep(Sensors.GetStep());
 	Motor.Drive();
 #endif
@@ -137,8 +144,7 @@ void MotorController::Update()
 //------------------------------------------------------------------------------
 void MotorController::Stop()
 {
-	//Motor.SetStopped();
-	//Motor.Execute();
+	Motor.StopMotor();
 }
 
 //------------------------------------------------------------------------------
@@ -146,6 +152,7 @@ void MotorController::Stop()
 void MotorController::SetForward()
 {
 	Motor.SetMotorDirection(ESpinDirection::EClockwise);
+	Motor.StartMotor();
 }
 
 //------------------------------------------------------------------------------
@@ -153,8 +160,11 @@ void MotorController::SetForward()
 void MotorController::SetBackward()
 {
 	Motor.SetMotorDirection(ESpinDirection::EAntiClockwise);
+	Motor.StartMotor();
 }
 
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void MotorController::SetSpeed(uint8_t RPM)
 {
 	TargetRPM = RPM;

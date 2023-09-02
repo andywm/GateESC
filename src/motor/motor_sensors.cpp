@@ -178,6 +178,11 @@ int MotorSensors::GetRPM() const
 	return RPM;
 }
 
+float MotorSensors::GetTimeInterval() const
+{
+	return Tachometer.TimeInterval;
+}
+
 int MotorSensors::GetAngle() const
 {
 	return PositionTick;

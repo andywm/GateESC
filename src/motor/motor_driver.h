@@ -14,6 +14,7 @@ Description:
 #include "util/timer.h"
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
+typedef unsigned char uint8_t;
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
@@ -34,7 +35,7 @@ enum PinOffset
 enum class ESpinDirection
 {
 	EClockwise,
-	EAntiClockwise
+	EAntiClockwise,
 };
 
 struct MotorWinding
@@ -69,6 +70,9 @@ private:
 	/// Current access index into the commutation table. 
 	int CurrentStep {-1};
 
+	/// Motor Enable State
+	bool MotorOn {false};
+
 	/// ActivePins
 	MotorWinding ActiveWinding;
 	
@@ -98,8 +102,11 @@ public:
 	/// Set spin direction.
 	void SetMotorDirection(ESpinDirection Direction);
 
-	/// Set commutator state to close all connections.  
-	void SetStopped();
+	/// Raise enable flag.
+	void StartMotor();
+
+	/// Lower enable flag. Set commutator state to close all connections.  
+	void StopMotor();
 
 	/// Write the current state to the io register to command the mosfet driver circuit.
 	void CloseAllWindings();
