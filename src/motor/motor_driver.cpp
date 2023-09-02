@@ -109,6 +109,11 @@ void MotorDriver::CloseAllWindings()
 	}
 }
 
+void MotorDriver::SetDuty(uint8_t PWM)
+{
+	Duty = PWM;
+}
+
 const char* DebugActiveWinding(int Winding, int Offset)
 {
 	int Phase = (Winding - Offset)/2;
@@ -125,9 +130,8 @@ void MotorDriver::Drive()
 		//Framework::Message( "High %d ; Low %d", ControlPins[ActiveWinding.Source], ControlPins[ActiveWinding.Sink]);
 		//Framework::Message( "-----------------------------");
 
-		Framework::AnalogWrite(ControlPins[ActiveWinding.Source], 100);
+		Framework::AnalogWrite(ControlPins[ActiveWinding.Source], Duty);
 		Framework::DigitalWrite(ControlPins[ActiveWinding.Sink], true);
-		//Framework::AnalogWrite(ControlPins[ActivePins[1]], 180); 
 
 		//handled, for now just output constant pwm, no control loop for speed.
 		ActiveWinding.Source = -1;

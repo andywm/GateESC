@@ -73,8 +73,8 @@ void MotorController::Init()
 	const int State_001 = Sensors.DeclareSensorState(0,0,1);
 
 	//Set Speed Measurement Constants
-	Sensors.RPM_Calculation.MeasureOnStep = State_100;
-	Sensors.RPM_Calculation.StepAngle = 18;
+	Sensors.Tachometer.Config.MeasureOnStep = State_100;
+	Sensors.Tachometer.Config.StepAngle = 18;
 
 	// Create Windings; Sink to Source
 	const int Winding_AB = Motor.DeclareWinding(A, B);
@@ -100,11 +100,16 @@ void MotorController::Init()
 	Motor.BindAntiClockwiseWinding(State_011, Winding_CA);
 	Motor.BindAntiClockwiseWinding(State_001, Winding_BA);
 
+	//Configure speed control PID.
+	SpeedPID.SetKp(1);
+	SpeedPID.SetKi(0);
+	SpeedPID.SetKd(0);
+
 	Serial.println("Motor Ready...");
 	delay(100);
 
 	Motor.Ready();
-	Sensors.RPM_Calculation.Time.Begin();
+	Sensors.Tachometer.MeasurementTimer.Begin();
 
 	// Add Debug Page
 	Framework::Debug.AddPage(ControllerDebug);
@@ -120,9 +125,6 @@ void MotorController::Update()
 	ControllerDebug.rpm = Sensors.GetRPM();
 	ControllerDebug.step = Sensors.GetStep();
 	ControllerDebug.angle = Sensors.GetAngle();
-
-	//Speed PID Loop
-	//... Modulate PWM?
 
 	//Motor Control
 #if !defined(IS_SENSOR_DEBUG_BUILD)
@@ -152,3 +154,15 @@ void MotorController::SetBackward()
 {
 	Motor.SetMotorDirection(ESpinDirection::EAntiClockwise);
 }
+
+void MotorController::SetSpeed(uint8_t RPM)
+{
+	TargetRPM = RPM;
+	SpeedPID.SetTarget(static_cast<float>(RPM));
+}
+
+//uint8_t MotorController::GetSpeedControlDuty()
+//{
+//	SpeedPID.PID(Sensors.GetRPM(), Sensors.GetTimeInterval());
+//
+//}

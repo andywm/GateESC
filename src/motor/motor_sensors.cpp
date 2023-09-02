@@ -62,8 +62,12 @@ void MotorSensors::DeclarePositionPins(int Pin)
 void MotorSensors::Sense()
 {
 	ReadState();
-	CalculateRPM();
+	UpdateTachometer();
 
+	//Note: Currently the position sensor is higher resolution than the hall sense
+	//circuit, but the read isn't as reliable yet. For now use the HSC, but in future
+	//ideally this would entirely be the duty of the position sensor. A future version
+	//of the ESC may even switch to back emf, eliminating the halls entirely.
 	if( PositionTick >= 360 )
 	{
 		PositionTick = 0;
@@ -72,11 +76,13 @@ void MotorSensors::Sense()
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-void MotorSensors::CalculateRPM()
+void MotorSensors::UpdateTachometer()
 {
-	if(CommutatorStep == RPM_Calculation.MeasureOnStep && bChanged)
+	if(CommutatorStep == Tachometer.Config.MeasureOnStep && bChanged)
 	{
-		const float AngularSpeedDegPerSecond = RPM_Calculation.StepAngle / (RPM_Calculation.Time.ReadTime()*1e-6);
+		Tachometer.TimeInterval = Tachometer.MeasurementTimer.ReadTime() * 1e-6;
+
+		const float AngularSpeedDegPerSecond = Tachometer.Config.StepAngle / Tachometer.TimeInterval;
 		const float RPMf = AngularSpeedDegPerSecond / 6.0f;
 
 		//Framework::Message("EPMF %.2f, TA %d", RPMf, RPM_Calculation.StepAngle);
@@ -85,7 +91,7 @@ void MotorSensors::CalculateRPM()
 		RPM = static_cast<int>( RPMf + 0.5f );
 
 		//reset.
-		RPM_Calculation.Time.Restart();
+		Tachometer.MeasurementTimer.Restart();
 	}
 }
 
