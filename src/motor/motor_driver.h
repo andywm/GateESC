@@ -73,7 +73,7 @@ private:
 	MotorWinding ActiveWinding;
 	
 	//PWM
-	float Duty {0.8f};
+	uint8_t Duty {255};
 public:
 
 	void Ready();
@@ -103,6 +103,9 @@ public:
 
 	/// Write the current state to the io register to command the mosfet driver circuit.
 	void CloseAllWindings();
+
+	/// Set PWM Drive Duty
+	void SetDuty(uint8_t PWM);
 
 	/// Drive ESC hardware
 	void Drive();

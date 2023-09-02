@@ -23,13 +23,20 @@ Description:
 class MotorSensors
 {
 public:
-	struct RPM_Data
+	struct TachometerData
 	{
-		int MeasureOnStep{0};
-		int StepAngle{0};
-		Timer Time;
+		struct ConfigData
+		{
+			int MeasureOnStep{0};
+			int StepAngle{0};
+		};
+		ConfigData Config;
+		Timer MeasurementTimer;
+		uint8_t RPM;
+		float TimeInterval;
 
-	}RPM_Calculation;
+	}Tachometer;
+
 private:
 	int RegisteredStates {0};
 
@@ -49,7 +56,8 @@ private:
 private:
 	void ReadState();
 	static void PositionInterrupt();
-	void CalculateRPM();
+	void DiscreteTimeStep();
+	void UpdateTachometer();
 
 public:
 	//Initialisation
@@ -64,5 +72,6 @@ public:
 	bool GetChanged() const;
 	int GetStep() const;
 	int GetRPM() const;
+	float GetTimeInterval() const;
 	int GetAngle() const;
 };
