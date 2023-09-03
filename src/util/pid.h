@@ -7,13 +7,10 @@ class PIDController
 public:
 	OutputType PID(InputType Input, float DeltaTime)
 	{
+		static float DebugSampleTimer = 0.0f;
 		Input = Maths::Clamp(Input, InputMin, InputMax);
 
 		const float Error = SetPoint - Input;
-		if( Error < 0.0f )
-		{
-			return 0;
-		}
 
 		const float pTerm = Error;
 		const float iTerm = Integral + (Error * DeltaTime);
@@ -23,7 +20,17 @@ public:
 		Integral = iTerm;
 		PrevError = Error;
 
+		if (DebugSampleTimer <= 0.0f)
+		{
+			Framework::Message("Input = %.2f", Input);
+			Framework::Message("Error = %.2f", Error);
+			Framework::Message("Value = %.2f", Pid);
+			DebugSampleTimer = 5.0f;
+		}
+		DebugSampleTimer -= DeltaTime;
+
 		//normalise range.
+		Pid = Maths::Clamp(Pid, InputMin, InputMax);
 		Pid = (Pid - InputMin) / (InputMax - InputMin);
 
 		//convert to output range.

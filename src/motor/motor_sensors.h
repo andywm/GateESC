@@ -32,8 +32,10 @@ public:
 		};
 		ConfigData Config;
 		Timer MeasurementTimer;
-		uint8_t RPM;
+		int OldPosition {0};
 		float TimeInterval {0.0f};
+		//uint8_t RPM;
+
 
 	}Tachometer;
 
@@ -52,12 +54,15 @@ private:
 	int RPM {0};
 	int CommutatorStep {-1};
 	bool bChanged {false};
+	int8_t rpm_new{0};
+	int8_t rpm_mid{0};
+	int8_t rpm_old{0};
 
 private:
 	void ReadState();
 	static void PositionInterrupt();
-	void DiscreteTimeStep();
-	void UpdateTachometer();
+	void UpdateTachometerHalls();
+	void UpdateTachometerPos();
 
 public:
 	//Initialisation

@@ -62,7 +62,7 @@ void MotorSensors::DeclarePositionPins(int Pin)
 void MotorSensors::Sense()
 {
 	ReadState();
-	UpdateTachometer();
+	UpdateTachometerPos();
 
 	//Note: Currently the position sensor is higher resolution than the hall sense
 	//circuit, but the read isn't as reliable yet. For now use the HSC, but in future
@@ -72,11 +72,16 @@ void MotorSensors::Sense()
 	{
 		PositionTick = 0;
 	}
+
+	if(bChanged)
+	{
+		Framework::Message("RPM = %d", RPM);
+	}
 }
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-void MotorSensors::UpdateTachometer()
+void MotorSensors::UpdateTachometerHalls()
 {
 	if(CommutatorStep == Tachometer.Config.MeasureOnStep && bChanged)
 	{
@@ -89,6 +94,56 @@ void MotorSensors::UpdateTachometer()
 
 		//round
 		RPM = static_cast<int>( RPMf + 0.5f );
+
+		//reset.
+		Tachometer.MeasurementTimer.Restart();
+	}
+}
+
+int avg_two_most_similar(int a, int b, int c)
+{
+    int diffAB = a > b? a - b : b - a;
+    int diffAC = a > c? a - c : c - a;
+    int diffBC = b > c? b - c : c - b;
+    
+    if( diffAB < diffAC && diffAB < diffBC)
+    {
+        return (a + b) / 2;
+    }
+    else if( diffAC < diffAB && diffAC < diffBC)
+    {
+        return (a + c) / 2;
+    }
+    return (b + c) /2;
+}
+
+void MotorSensors::UpdateTachometerPos()
+{
+	int Pos = GetAngle();
+
+	if(Pos != Tachometer.OldPosition)
+	{
+		int Ticks = Maths::Abs(Pos - Tachometer.OldPosition);
+		if(Pos >= 360)
+		{
+			Pos -= 360;
+		}
+		Tachometer.OldPosition = Pos;
+		
+		Tachometer.TimeInterval = Tachometer.MeasurementTimer.ReadTime() * 1e-6;
+
+		//This only works as the mk1 optical encoder has 360 segments, Calc should be (EncoderResolution*Ticks)
+		const float AngularSpeedDegPerSecond = Ticks / Tachometer.TimeInterval;
+		const float RPMf = AngularSpeedDegPerSecond / 6.0f;
+
+		//Framework::Message("EPMF %.2f, TA %d", RPMf, RPM_Calculation.StepAngle);
+
+		//round
+		rpm_old = rpm_mid;
+		rpm_mid = rpm_new;
+		rpm_new = static_cast<int>( RPMf + 0.5f );
+
+		RPM = avg_two_most_similar(rpm_old, rpm_mid, rpm_new);
 
 		//reset.
 		Tachometer.MeasurementTimer.Restart();

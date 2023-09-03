@@ -34,7 +34,8 @@ struct MotorControlPage : public DebugPage
 			SetLine(0, "Step #              ", step.Value);
 			SetLine(1, "Measured RPM ###    ", rpm.Value);
 			SetLine(2, "Angle ###*          ", angle.Value);
-			SetLine(3, "PWM ###             ", pwm.Value);
+			SetLine(3, "                    ");
+			//SetLine(3, "PWM ###             ", pwm.Value);
 #endif
 			
 			return true;
@@ -129,12 +130,16 @@ void MotorController::Update()
 	ControllerDebug.step = Sensors.GetStep();
 	ControllerDebug.angle = Sensors.GetAngle();
 
-	uint8_t pwm = SpeedPID.PID(Sensors.GetRPM(), Sensors.GetTimeInterval());
-	ControllerDebug.pwm = pwm;
+	//if(Sensors.ConsumeChange())
+	//{
+		//Framework::Message("RPM = %d", Sensors.GetRPM());
+		//uint8_t pwm = SpeedPID.PID(Sensors.GetRPM(), Sensors.GetTimeInterval());
+		//ControllerDebug.pwm = pwm;
+	//}
 
 	//Motor Control
 #if !defined(IS_SENSOR_DEBUG_BUILD)
-	Motor.SetDuty(pwm);
+	Motor.SetDuty(255);
 	Motor.SetCommutatorStep(Sensors.GetStep());
 	Motor.Drive();
 #endif

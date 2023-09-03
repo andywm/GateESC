@@ -74,7 +74,7 @@ void MotorDriver::SetCommutatorStep(int Step)
 	if( Step != CurrentStep )
 	{
 		CurrentStep = Step;
-		Framework::Message( "Step %d", CurrentStep );
+		//Framework::Message( "Step %d", CurrentStep );
 		
 		const int WindingIdx = SpinDirection == ESpinDirection::EClockwise? WindingLookupCW[Step] : WindingLookupACW[Step];
 		ActiveWinding = WindingTable[WindingIdx];

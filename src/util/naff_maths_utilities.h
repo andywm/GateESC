@@ -20,7 +20,7 @@ struct Maths
 	template<typename T>
 	static T Clamp(T Input, T Low, T High)
 	{
-		if( Input > Low)
+		if( Input < Low)
 		{
 			return Low;
 		}
@@ -49,5 +49,11 @@ struct Maths
 			return A;
 		}
 		return B;
+	}
+
+	template<typename T>
+	static T Abs(T A)
+	{
+		return A >= 0 ? A : -A;
 	}
 };
