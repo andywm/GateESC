@@ -27,16 +27,13 @@ struct MotorControlPage : public DebugPage
 		{
 			Dirty = false;
 
-#if defined(IS_SENSOR_DEBUG_BUILD)
-			SetLine(0, "Angle ###*          ", angle.Value);
-#else
 			//______L__|12345678901234567890|
 			SetLine(0, "Step #              ", step.Value);
 			SetLine(1, "Measured RPM ###    ", rpm.Value);
-			SetLine(2, "Angle ###*          ", angle.Value);
+			//SetLine(2, "Angle ###*          ", angle.Value);
+			SetLine(2, "                    ");
 			SetLine(3, "                    ");
 			//SetLine(3, "PWM ###             ", pwm.Value);
-#endif
 			
 			return true;
 		}
@@ -104,9 +101,9 @@ void MotorController::Init()
 
 	//Configure speed control PID.
 	SpeedPID.SetKp(1);
-	SpeedPID.SetKi(0);
-	SpeedPID.SetKd(0);
-	SpeedPID.SetInputRange(0.0f, 90.0f); //motor max rpm is 90.
+	SpeedPID.SetKi(1);
+	SpeedPID.SetKd(1);
+	SpeedPID.SetInputRange(0.0f, 160.0f); //motor max rpm is 90.
 	SpeedPID.SetOutputRange(0, 255); //output in pwm, assume linear for now.
 
 	Serial.println("Motor Ready...");
@@ -128,21 +125,25 @@ void MotorController::Update()
 	//Debug Stuff
 	ControllerDebug.rpm = Sensors.GetRPM();
 	ControllerDebug.step = Sensors.GetStep();
-	ControllerDebug.angle = Sensors.GetAngle();
+	//ControllerDebug.angle = Sensors.GetAngle();
+
+	
 
 	//if(Sensors.ConsumeChange())
 	//{
 		//Framework::Message("RPM = %d", Sensors.GetRPM());
-		//uint8_t pwm = SpeedPID.PID(Sensors.GetRPM(), Sensors.GetTimeInterval());
 		//ControllerDebug.pwm = pwm;
 	//}
 
+	if(Sensors.GetChanged())
+	{
+		//int pwm = SpeedPID.PID(Sensors.GetRPM(), Sensors.GetTimeInterval());
+		Motor.SetDuty(255);
+	}
+
 	//Motor Control
-#if !defined(IS_SENSOR_DEBUG_BUILD)
-	Motor.SetDuty(255);
 	Motor.SetCommutatorStep(Sensors.GetStep());
 	Motor.Drive();
-#endif
 }
 
 //------------------------------------------------------------------------------

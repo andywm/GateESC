@@ -19,6 +19,9 @@ Description:
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
+#define USE_ANGLE_TICK 0
+#define USE_RPM_AVG 1
+
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 void MotorSensors::DeclareHallPins(int Pin1, int Pin2, int Pin3)
@@ -51,10 +54,12 @@ int MotorSensors::PositionTick = 0;
 //------------------------------------------------------------------------------
 void MotorSensors::DeclarePositionPins(int Pin)
 {
+#if USE_ANGLE_TICK
 	Framework::Message("Position Sensor; pin %d", Pin );
 	Framework::PinMode(Pin, EInput);
 
 	attachInterrupt(digitalPinToInterrupt(Pin), PositionInterrupt, RISING);
+#endif
 }
 
 //------------------------------------------------------------------------------
@@ -62,21 +67,43 @@ void MotorSensors::DeclarePositionPins(int Pin)
 void MotorSensors::Sense()
 {
 	ReadState();
-	UpdateTachometerPos();
+	UpdateTachometerHalls();
 
 	//Note: Currently the position sensor is higher resolution than the hall sense
 	//circuit, but the read isn't as reliable yet. For now use the HSC, but in future
 	//ideally this would entirely be the duty of the position sensor. A future version
 	//of the ESC may even switch to back emf, eliminating the halls entirely.
+#if USE_ANGLE_TICK
 	if( PositionTick >= 360 )
 	{
 		PositionTick = 0;
 	}
+#endif
 
 	if(bChanged)
 	{
-		Framework::Message("RPM = %d", RPM);
+		//Framework::Message("RPM = %d, Angle = ", RPM);
+		//Framework::Message("RPM = %d, Angle = %d", RPM, PositionTick);
 	}
+}
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+int avg_two_most_similar(int a, int b, int c)
+{
+    int diffAB = a > b? a - b : b - a;
+    int diffAC = a > c? a - c : c - a;
+    int diffBC = b > c? b - c : c - b;
+    
+    if( diffAB < diffAC && diffAB < diffBC)
+    {
+        return (a + b) / 2;
+    }
+    else if( diffAC < diffAB && diffAC < diffBC)
+    {
+        return (a + c) / 2;
+    }
+    return (b + c) /2;
 }
 
 //------------------------------------------------------------------------------
@@ -93,28 +120,19 @@ void MotorSensors::UpdateTachometerHalls()
 		//Framework::Message("EPMF %.2f, TA %d", RPMf, RPM_Calculation.StepAngle);
 
 		//round
+#if USE_RPM_AVG
+		rpm_old = rpm_mid;
+		rpm_mid = rpm_new;
+		rpm_new = static_cast<int>( RPMf + 0.5f );
+
+		RPM = avg_two_most_similar(rpm_old, rpm_mid, rpm_new);
+#else
 		RPM = static_cast<int>( RPMf + 0.5f );
+#endif
 
 		//reset.
 		Tachometer.MeasurementTimer.Restart();
 	}
-}
-
-int avg_two_most_similar(int a, int b, int c)
-{
-    int diffAB = a > b? a - b : b - a;
-    int diffAC = a > c? a - c : c - a;
-    int diffBC = b > c? b - c : c - b;
-    
-    if( diffAB < diffAC && diffAB < diffBC)
-    {
-        return (a + b) / 2;
-    }
-    else if( diffAC < diffAB && diffAC < diffBC)
-    {
-        return (a + c) / 2;
-    }
-    return (b + c) /2;
 }
 
 void MotorSensors::UpdateTachometerPos()
@@ -139,11 +157,15 @@ void MotorSensors::UpdateTachometerPos()
 		//Framework::Message("EPMF %.2f, TA %d", RPMf, RPM_Calculation.StepAngle);
 
 		//round
+#if USE_RPM_AVG
 		rpm_old = rpm_mid;
 		rpm_mid = rpm_new;
 		rpm_new = static_cast<int>( RPMf + 0.5f );
 
 		RPM = avg_two_most_similar(rpm_old, rpm_mid, rpm_new);
+#else
+		RPM = static_cast<int>( RPMf + 0.5f );
+#endif
 
 		//reset.
 		Tachometer.MeasurementTimer.Restart();
@@ -176,46 +198,17 @@ void MotorSensors::ReadState()
 	}
 }
 
-//enum class InterruptTimecode : uint8_t
-//{
-//	None, 
-//	LowMicroseconds,	//Order of 10us
-//	HighMicroseconds,   //Order of 100us
-//	LowMiliseconds,		//Order of 1ms
-//	HighMiliseconds,	//Order of 10ms
-//	Eternity,			//Order of > 100ms
-//};
-
-//uint8_t InterruptPointer=0;
-//InterruptTimecode InterruptBuffer[32];
-
 void MotorSensors::PositionInterrupt()
 {
 	static unsigned long last_interrupt_time = 0;
 	unsigned long interrupt_time = micros();
 	unsigned long diff = interrupt_time - last_interrupt_time;
-	//InterruptTimecode Type = InterruptTimecode::Eternity;
 	last_interrupt_time = interrupt_time;
 
 	if (diff > 100)
 	{
 		PositionTick++;
-		//Type = InterruptTimecode::LowMicroseconds;
 	}
-	//else if (diff < 1000)
-	//{
-	//	Type = InterruptTimecode::HighMicroseconds;
-	//}
-	//else if(diff < 1000)
-	//{
-	//	Type = InterruptTimecode::LowMiliseconds;
-	//}
-	//else if(diff < 10000)
-	//{
-	//	Type = InterruptTimecode::HighMiliseconds;
-	//}
-
-	//InterruptBuffer[InterruptPointer++] = Type;
 }
 
 bool MotorSensors::GetChanged() const

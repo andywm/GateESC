@@ -37,7 +37,7 @@ void MotorOne::Run()
 void MotorOne::Init()
 {
 	Control.Init();
-	Control.SetSpeed(60);
+	Control.SetSpeed(100);
 	Control.SetForward();
 	Framework::Debug.Init();
 	Framework::Debug.SetPage(0);

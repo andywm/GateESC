@@ -54,9 +54,9 @@ private:
 	int RPM {0};
 	int CommutatorStep {-1};
 	bool bChanged {false};
-	int8_t rpm_new{0};
-	int8_t rpm_mid{0};
-	int8_t rpm_old{0};
+	int rpm_new{0};
+	int rpm_mid{0};
+	int rpm_old{0};
 
 private:
 	void ReadState();
