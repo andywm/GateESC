@@ -11,8 +11,8 @@ Description:
 //------------------------------------------------------------------------------
 #include <stdint.h>
 #include <Wire.h>
-#include <LiquidCrystal_I2C.h>
 #include <Arduino.h>
+#include <Adafruit_SSD1306.h>
 #include "util/naff_string_utilities.h"
 #include "util/timer.h"
 //------------------------------------------------------------------------------
@@ -76,13 +76,12 @@ struct DebugValue
 
 class DebugSystem
 {
-	static constexpr int DEFAULT_LCD_I2C_ADDR = 0x27;
 	static constexpr int MaxPages = 10;
 private:
 	const int LineCount;
 
   	TwoWire I2CBus;
-  	LiquidCrystal_I2C DisplayLCD;
+	Adafruit_SSD1306 Display;
 
 	DebugPage* Pages[MaxPages] = {nullptr};
 	TextBuffer ScreenBuffer;
@@ -108,7 +107,7 @@ private:
 	}LCDMetadata;
 
 public:
-	DebugSystem(int Width, int Height, int DeviceAddress=DEFAULT_LCD_I2C_ADDR);
+	DebugSystem();
 
 	TextBuffer* UpdateBackBuffer();
 

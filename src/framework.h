@@ -37,30 +37,18 @@ class Framework
 public:
 	struct Pinout
 	{
-#if defined(IS_NANO_BUILD)
-		constexpr static uint8_t ESC_SOURCE_A	= 11;
-		constexpr static uint8_t ESC_SOURCE_B	= 10;
-		constexpr static uint8_t ESC_SOURCE_C	= 9;
-		constexpr static uint8_t ESC_SINK_A		= 8;
-		constexpr static uint8_t ESC_SINK_B		= 7;
-		constexpr static uint8_t ESC_SINK_C		= 6;
-		constexpr static uint8_t ESC_HALL_1		= 5;
-		constexpr static uint8_t ESC_HALL_2		= 4;
-		constexpr static uint8_t ESC_HALL_3		= 3;
-		constexpr static uint8_t POS_SENSE		= 2;
-#elif defined(IS_BLUEPILL_BUILD)
-		constexpr static uint8_t ESC_SINK_A		= PA8;
-		constexpr static uint8_t ESC_SOURCE_A	= PA9;
-		constexpr static uint8_t ESC_SINK_B		= PB12;
-		constexpr static uint8_t ESC_SOURCE_B	= PB13;
-		constexpr static uint8_t ESC_SINK_C		= PB14;
-		constexpr static uint8_t ESC_SOURCE_C	= PB15;
-		constexpr static uint8_t ESC_HALL_A		= PA15;
-		constexpr static uint8_t ESC_HALL_B		= PB3;
-		constexpr static uint8_t ESC_HALL_C		= PB4;
-		constexpr static uint8_t dir_output		= PA15;
-		constexpr static uint8_t dir_input		= PB3;
-#endif
+		constexpr static uint8_t ESC_SOURCE_A	= 2;
+		constexpr static uint8_t ESC_SOURCE_B	= 3;
+		constexpr static uint8_t ESC_SOURCE_C	= 4;
+		constexpr static uint8_t ESC_SINK_A		= 5;
+		constexpr static uint8_t ESC_SINK_B		= 6;
+		constexpr static uint8_t ESC_SINK_C		= 7;
+		constexpr static uint8_t POS_SENSE		= 8;
+		constexpr static uint8_t ESC_HALL_1		= 9;
+		constexpr static uint8_t ESC_HALL_2		= 10;
+		constexpr static uint8_t ESC_HALL_3		= 11;
+		constexpr static uint8_t I2C0_SDA		= 12;
+		constexpr static uint8_t I2C0_SCL		= 13;
 	};
 
 private:

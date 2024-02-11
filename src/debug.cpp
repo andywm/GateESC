@@ -19,10 +19,12 @@ Description:
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-DebugSystem::DebugSystem(int Width, int Height, int DeviceAddress/*=DEFAULT_LCD_I2C_ADDR*/)
-	: LineCount(Height)
-	, DisplayLCD(DeviceAddress, Width, Height, LCD_5x8DOTS)
+DebugSystem::DebugSystem()
+	: LineCount(4)
+	, I2CBus(Framework::Pinout::I2C0_SDA, Framework::Pinout::I2C0_SCL)
+	, Display(128, 32, &I2CBus, -1)
 {
+	
 }
 
 //------------------------------------------------------------------------------
@@ -36,8 +38,7 @@ void DebugSystem::AddPage(DebugPage& Page )
 //------------------------------------------------------------------------------
 void DebugSystem::Init()
 {
-	DisplayLCD.begin();
-	DisplayLCD.backlight();
+	Display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
 }
 
 //------------------------------------------------------------------------------
@@ -98,7 +99,10 @@ void DebugSystem::Process()
 #endif //USE_SERIAL_DEBUG
 
 			//clear is expensive, ~3ms, so swtich to a rate limit.
-			DisplayLCD.clear();
+			Display.clearDisplay();
+  			Display.setTextColor(WHITE);
+  			Display.setTextSize(1);
+ 			Display.setCursor(0, 0);
 
 			//done writing, lockout screen for 250ms.
 			SetRatedLimited();
@@ -209,8 +213,8 @@ bool DebugSystem::WriteToScreenBuffer()
 #endif //USE_SERIAL_DEBUG
 
 				//Single char, takes about 1.5ms...
-				DisplayLCD.setCursor(CharIdx,LineIdx);
-				DisplayLCD.print(ScreenBuffer[LineIdx][CharIdx]);
+ 				Display.setCursor(CharIdx, LineIdx);
+				Display.print(ScreenBuffer[LineIdx][CharIdx]);
 
 				WroteChar = true;
 				break;

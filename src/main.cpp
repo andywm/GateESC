@@ -3,24 +3,17 @@
 #include "motor_one.h"
 //#include "debug.h"
 
-#if !defined(IS_NANO_EVERY_BUILD)
-
-int main(int argc, char**argv)
+void setup()
 {
 	//don't actually do anything for now.
 
-	//init();
-	//Serial.begin(9600);
-	//MotorOne program;
-	//program.Run();
-}
-#else
-void setup()
-{
+	init();
 	Serial.begin(9600);
 	MotorOne program;
 	program.Run();
 }
 
-void loop(){}
-#endif
+void loop()
+{
+
+}
