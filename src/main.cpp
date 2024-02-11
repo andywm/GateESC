@@ -7,10 +7,12 @@
 
 int main(int argc, char**argv)
 {
-	init();
-	Serial.begin(9600);
-	MotorOne program;
-	program.Run();
+	//don't actually do anything for now.
+
+	//init();
+	//Serial.begin(9600);
+	//MotorOne program;
+	//program.Run();
 }
 #else
 void setup()
