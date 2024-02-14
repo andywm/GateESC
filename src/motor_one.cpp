@@ -39,8 +39,8 @@ void MotorOne::Init()
 	Control.Init();
 	Control.SetSpeed(100);
 	Control.SetForward();
-	Framework::Debug.Init();
-	Framework::Debug.SetPage(0);
+	//Framework::Debug.Init();
+	//Framework::Debug.SetPage(0);
 }
 
 //------------------------------------------------------------------------------
@@ -48,5 +48,5 @@ void MotorOne::Init()
 void MotorOne::Loop()
 {
 	Control.Update();
-	Framework::Debug.Process();
+	//Framework::Debug.Process();
 }
