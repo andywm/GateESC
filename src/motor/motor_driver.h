@@ -54,10 +54,10 @@ class MotorDriver
 private:
 	int RegisteredWinding {0};
 
-	/// All valid commutation steps for this motor.
-	//ECommutatorState* CommutationTable;
-
+	/// Winding Table
 	MotorWinding WindingTable[GlobalMotor::StepCount];
+
+	/// Commutation Tables
 	int WindingLookupCW[GlobalMotor::StepCount];
 	int WindingLookupACW[GlobalMotor::StepCount];
 

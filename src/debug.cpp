@@ -39,6 +39,8 @@ void DebugSystem::AddPage(DebugPage& Page )
 void DebugSystem::Init()
 {
 	Display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
+	Display.clearDisplay();
+	Display.display();
 }
 
 //------------------------------------------------------------------------------
@@ -213,8 +215,9 @@ bool DebugSystem::WriteToScreenBuffer()
 #endif //USE_SERIAL_DEBUG
 
 				//Single char, takes about 1.5ms...
- 				//Display.setCursor(CharIdx * 6, LineIdx * 8);
-				//Display.print(ScreenBuffer[LineIdx][CharIdx]);
+ 				Display.setCursor(CharIdx * 6, LineIdx * 8);
+				Display.print(ScreenBuffer[LineIdx][CharIdx]);
+				Display.display();
 
 				WroteChar = true;
 				break;

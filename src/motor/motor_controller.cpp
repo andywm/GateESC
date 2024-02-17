@@ -120,7 +120,7 @@ void MotorController::Init()
 //------------------------------------------------------------------------------
 void MotorController::Update()
 {
-	Sensors.Sense(); 
+	Sensors.Sense(); //COMMENTED OUT FOR SCREEN TEST
 
 	//Debug Stuff
 	ControllerDebug.rpm = Sensors.GetRPM();
@@ -135,15 +135,15 @@ void MotorController::Update()
 		//ControllerDebug.pwm = pwm;
 	//}
 
-	if(Sensors.GetChanged())
+	if(Sensors.GetChanged()) //COMMENTED OUT FOR SCREEN TEST
 	{
 		//int pwm = SpeedPID.PID(Sensors.GetRPM(), Sensors.GetTimeInterval());
-		Motor.SetDuty(255);
+		Motor.SetDuty(255); ///COMMENTED OUT FOR SCREEN TEST
 	}
 
 	//Motor Control
-	Motor.SetCommutatorStep(Sensors.GetStep());
-	Motor.Drive();
+	Motor.SetCommutatorStep(Sensors.GetStep());  //COMMENTED OUT FOR SCREEN TEST
+	Motor.Drive();  //COMMENTED OUT FOR SCREEN TEST
 }
 
 //------------------------------------------------------------------------------
