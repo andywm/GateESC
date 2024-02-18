@@ -142,8 +142,10 @@ void MotorDriver::Drive()
 		//Framework::Message( "High %d ; Low %d", ControlPins[ActiveWinding.Source], ControlPins[ActiveWinding.Sink]);
 		//Framework::Message( "-----------------------------");
 
-		Framework::AnalogWrite(ControlPins[ActiveWinding.Source], Duty);
-		Framework::DigitalWrite(ControlPins[ActiveWinding.Sink], true);
+		//COMMENT OUT FOR PORT SAFETY DO NOT ENABLE BOTH MOSFETS
+		//Framework::AnalogWrite(ControlPins[ActiveWinding.Source], Duty);
+		Framework::DigitalWrite(ControlPins[ActiveWinding.Source], true);
+		//Framework::DigitalWrite(ControlPins[ActiveWinding.Sink], true);
 
 		ActiveWinding.Source = -1;
 		ActiveWinding.Sink = -1;

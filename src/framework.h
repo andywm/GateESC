@@ -38,10 +38,10 @@ public:
 	struct Pinout
 	{
 		constexpr static uint8_t ESC_SOURCE_A	= 2;
-		constexpr static uint8_t ESC_SOURCE_B	= 3;
-		constexpr static uint8_t ESC_SOURCE_C	= 4;
-		constexpr static uint8_t ESC_SINK_A		= 5;
-		constexpr static uint8_t ESC_SINK_B		= 6;
+		constexpr static uint8_t ESC_SINK_A		= 3;
+		constexpr static uint8_t ESC_SOURCE_B	= 4;
+		constexpr static uint8_t ESC_SINK_B		= 5;
+		constexpr static uint8_t ESC_SOURCE_C	= 6;
 		constexpr static uint8_t ESC_SINK_C		= 7;
 		constexpr static uint8_t POS_SENSE		= 8;
 		constexpr static uint8_t ESC_HALL_1		= 9;

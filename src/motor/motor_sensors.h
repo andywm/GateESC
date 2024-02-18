@@ -38,6 +38,7 @@ public:
 
 
 	}Tachometer;
+	int DebugSensorPins[GlobalMotor::PhaseCount] = {0};
 
 private:
 	int RegisteredStates {0};

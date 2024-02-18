@@ -214,6 +214,9 @@ bool DebugSystem::WriteToScreenBuffer()
 				Framework::Message("Writing Pos L=%d, C=%d: %c", LineIdx, CharIdx, ScreenBuffer[LineIdx][CharIdx]);
 #endif //USE_SERIAL_DEBUG
 
+ 				Display.setCursor(CharIdx * 6, LineIdx * 8);
+				Display.setTextColor(WHITE, BLACK);
+				Display.print(' ');
 				//Single char, takes about 1.5ms...
  				Display.setCursor(CharIdx * 6, LineIdx * 8);
 				Display.print(ScreenBuffer[LineIdx][CharIdx]);

@@ -181,6 +181,7 @@ void MotorSensors::ReadState()
 	for( int SensorID = 0; SensorID < GlobalMotor::PhaseCount; ++SensorID )
 	{
 		const int PinState = Framework::DigitalRead(SensorsPins[SensorID]);
+		DebugSensorPins[SensorID] = PinState;
 		Hash |= (PinState << SensorID);
 	}
 

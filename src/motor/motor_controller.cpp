@@ -30,8 +30,9 @@ struct MotorControlPage : public DebugPage
 			//______L__|12345678901234567890|
 			SetLine(0, "Step #              ", step.Value);
 			SetLine(1, "Measured RPM ###    ", rpm.Value);
+			SetLine(2, "A# B# C#            ", a.Value, b.Value, c.Value);
 			//SetLine(2, "Angle ###*          ", angle.Value);
-			SetLine(2, "                    ");
+			//SetLine(2, "                    ");
 			SetLine(3, "                    ");
 			//SetLine(3, "PWM ###             ", pwm.Value);
 			
@@ -43,6 +44,9 @@ struct MotorControlPage : public DebugPage
 	DebugValue<int> step = {Dirty};
 	DebugValue<int> angle = {Dirty};
 	DebugValue<int> pwm = {Dirty};
+	DebugValue<int> a = {Dirty};
+	DebugValue<int> b = {Dirty};
+	DebugValue<int> c = {Dirty};
 } ControllerDebug;
 
 
@@ -125,9 +129,10 @@ void MotorController::Update()
 	//Debug Stuff
 	ControllerDebug.rpm = Sensors.GetRPM();
 	ControllerDebug.step = Sensors.GetStep();
+	ControllerDebug.a = Sensors.DebugSensorPins[0];
+	ControllerDebug.b = Sensors.DebugSensorPins[1];
+	ControllerDebug.c = Sensors.DebugSensorPins[2];
 	//ControllerDebug.angle = Sensors.GetAngle();
-
-	
 
 	//if(Sensors.ConsumeChange())
 	//{
@@ -135,10 +140,10 @@ void MotorController::Update()
 		//ControllerDebug.pwm = pwm;
 	//}
 
-	if(Sensors.GetChanged()) //COMMENTED OUT FOR SCREEN TEST
+	//if(Sensors.GetChanged()) //COMMENTED OUT FOR SCREEN TEST
 	{
 		//int pwm = SpeedPID.PID(Sensors.GetRPM(), Sensors.GetTimeInterval());
-		Motor.SetDuty(255); ///COMMENTED OUT FOR SCREEN TEST
+		//Motor.SetDuty(255); ///COMMENTED OUT FOR SCREEN TEST
 	}
 
 	//Motor Control
