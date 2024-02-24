@@ -114,7 +114,7 @@ int Framework::DigitalRead(int Pin)
 
 //-------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------
-void Framework::AnalogWrite(int Pin, int8_t PwmValue)
+void Framework::AnalogWrite(int Pin, int PwmValue)
 {
 	//Framework::Message("Pin=%d - Value=%d", Pin, (int)bState);
 	analogWrite(Pin, PwmValue);

@@ -94,5 +94,5 @@ public:
 	static int DigitalRead(int Pin);
 
 	/// Wrapper function for Arduino AnalogWrite, for interface consistency.
-	static void AnalogWrite(int Pin, int8_t PwmValue);
+	static void AnalogWrite(int Pin, int PwmValue);
 };
