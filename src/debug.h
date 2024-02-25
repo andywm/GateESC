@@ -85,7 +85,7 @@ private:
 
 	DebugPage* Pages[MaxPages] = {nullptr};
 	TextBuffer ScreenBuffer;
-	uint8_t CurrentPage = -1;
+	uint8_t CurrentPage = UINT8_MAX;
 	uint8_t NextFreePage = 0;
 	Timer LimitTimer;
 
@@ -99,7 +99,7 @@ private:
 			ClearBuffer, 
 		} State {EState::ClearBuffer};
 		uint32_t UpdateMask[4] = {0,0,0,0};
-		uint8_t Page = -1;
+		uint8_t Page = UINT8_MAX;
 		uint8_t CurrentLine {0};
 		uint8_t CurrentChar {0};
 

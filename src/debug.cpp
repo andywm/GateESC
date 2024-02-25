@@ -117,7 +117,8 @@ void DebugSystem::Process()
 //------------------------------------------------------------------------------
 bool DebugSystem::IsRateLimited()
 {
-	return LimitTimer.ReadTime() < 333333;
+	//return LimitTimer.ReadTime() < 333333;
+	return LimitTimer.ReadTime() < 200000;
 }
 
 //------------------------------------------------------------------------------
@@ -136,14 +137,14 @@ void DebugSystem::SetRatedLimited()
 //------------------------------------------------------------------------------
 bool DebugSystem::PrimeScreenBuffer()
 {
-	if( CurrentPage != -1 && !Pages[CurrentPage]->Update() )
+	if( CurrentPage != UINT8_MAX && !Pages[CurrentPage]->Update() )
 	{
 		return false;
 	}
-	else if( CurrentPage == -1 && LCDMetadata.Page != -1 )
+	else if( CurrentPage == UINT8_MAX && LCDMetadata.Page != UINT8_MAX )
 	{
 		//Clear
-		LCDMetadata.Page = -1;
+		LCDMetadata.Page = UINT8_MAX;
 		LCDMetadata.State = Metadata_LCD::EState::ClearBuffer;
 		return false;
 	}

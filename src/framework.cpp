@@ -91,25 +91,17 @@ void Framework::PinMode(int Pin, EPinMode Mode)
 
 //-------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------
-void Framework::DigitalWrite(int Pin, bool bState)
+void Framework::DigitalWrite(int Pin, int State)
 {
 	//Framework::Message("Pin=%d - Value=%d", Pin, (int)bState);
-	digitalWrite(Pin, bState);
+	digitalWrite(Pin, State);
 }
 
 //-------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------
 int Framework::DigitalRead(int Pin)
 {
-//#if defined(IS_NANO_BUILD)
-//	if( Pin < 8 )
-//	{
-//		return (PORTD & (0x1 << Pin)) > 0;
-//	}
-//	return (PORTD & (0x1 << (Pin-8))) > 0;
-//#else
 	return static_cast<int>(digitalRead(Pin));
-//#endif
 }
 
 //-------------------------------------------------------------------------------

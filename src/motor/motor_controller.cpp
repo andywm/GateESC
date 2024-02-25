@@ -30,11 +30,11 @@ struct MotorControlPage : public DebugPage
 			//______L__|12345678901234567890|
 			SetLine(0, "Step #              ", step.Value);
 			SetLine(1, "Measured RPM ###    ", rpm.Value);
-			SetLine(2, "A# B# C#            ", a.Value, b.Value, c.Value);
+			SetLine(2, "PWM ### ANG ###     ", pwm.Value, angle.Value);
+			SetLine(3, "                    ");
+			//SetLine(3, "A# B# C#            ", a.Value, b.Value, c.Value);
 			//SetLine(2, "Angle ###*          ", angle.Value);
 			//SetLine(2, "                    ");
-			SetLine(3, "                    ");
-			//SetLine(3, "PWM ###             ", pwm.Value);
 			
 			return true;
 		}
@@ -105,10 +105,10 @@ void MotorController::Init()
 
 	//Configure speed control PID.
 	SpeedPID.SetKp(1);
-	SpeedPID.SetKi(1);
-	SpeedPID.SetKd(1);
-	SpeedPID.SetInputRange(0.0f, 160.0f); //motor max rpm is 90.
-	SpeedPID.SetOutputRange(0, 255); //output in pwm, assume linear for now.
+	SpeedPID.SetKi(1.2f);
+	SpeedPID.SetKd(2.0f);
+	SpeedPID.SetInputRange(0.0f, 420.0f); //motor max rpm is 90.
+	SpeedPID.SetOutputRange(0, UINT8_MAX); //output in pwm, assume linear for now.
 
 	Serial.println("Motor Ready...");
 	delay(100);
@@ -124,7 +124,7 @@ void MotorController::Init()
 //------------------------------------------------------------------------------
 void MotorController::Update()
 {
-	Sensors.Sense(); //COMMENTED OUT FOR SCREEN TEST
+	Sensors.Sense();
 
 	//Debug Stuff
 	ControllerDebug.rpm = Sensors.GetRPM();
@@ -132,7 +132,7 @@ void MotorController::Update()
 	ControllerDebug.a = Sensors.DebugSensorPins[0];
 	ControllerDebug.b = Sensors.DebugSensorPins[1];
 	ControllerDebug.c = Sensors.DebugSensorPins[2];
-	//ControllerDebug.angle = Sensors.GetAngle();
+	ControllerDebug.angle = Sensors.GetAngle();
 
 	//if(Sensors.ConsumeChange())
 	//{
@@ -140,15 +140,17 @@ void MotorController::Update()
 		//ControllerDebug.pwm = pwm;
 	//}
 
-	//if(Sensors.GetChanged()) //COMMENTED OUT FOR SCREEN TEST
+	if(Sensors.GetChanged())
 	{
-		//int pwm = SpeedPID.PID(Sensors.GetRPM(), Sensors.GetTimeInterval());
-		//Motor.SetDuty(255); ///COMMENTED OUT FOR SCREEN TEST
+		int PWM = SpeedPID.PID(Sensors.GetRPM(), Sensors.GetTimeInterval());
+		Motor.SetDuty(PWM); ///COMMENTED OUT FOR SCREEN TEST
+		ControllerDebug.pwm = PWM;
+
 	}
 
 	//Motor Control
-	Motor.SetCommutatorStep(Sensors.GetStep());  //COMMENTED OUT FOR SCREEN TEST
-	Motor.Drive();  //COMMENTED OUT FOR SCREEN TEST
+	Motor.SetCommutatorStep(Sensors.GetStep());
+	Motor.Drive();
 }
 
 //------------------------------------------------------------------------------

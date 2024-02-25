@@ -122,6 +122,7 @@
                 "PLATFORMIO=60113",
                 "ARDUINO_RASPBERRY_PI_PICO",
                 "ARDUINO_ARCH_RP2040",
+                "P_FETS_LOGICAL_INVERT",
                 "ARM_MATH_CM0PLUS",
                 "__CMSIS_RTOS",
                 "COMPONENT_FLASHIAP=1",

@@ -112,8 +112,8 @@ void MotorDriver::CloseAllWindings()
 	//close all connections
 	for( int Phase = 0; Phase < GlobalMotor::PhaseCount; ++Phase )
 	{
-		Framework::DigitalWrite(ControlPins[Phase*2 + PinOffset::ESink], true); 
-		Framework::AnalogWrite(ControlPins[Phase*2 + PinOffset::ESource], 0); 
+		Framework::DigitalWrite(ControlPins[Phase*2 + PinOffset::ESink], Framework::Signal::NFetOpen); 
+		Framework::AnalogWrite(ControlPins[Phase*2 + PinOffset::ESource], Framework::Signal::PFetOpen); 
 	}
 }
 
@@ -142,9 +142,9 @@ void MotorDriver::Drive()
 		//Framework::Message( "High %d ; Low %d", ControlPins[ActiveWinding.Source], ControlPins[ActiveWinding.Sink]);
 		//Framework::Message( "-----------------------------");
 
-		//COMMENT OUT FOR PORT SAFETY DO NOT ENABLE BOTH MOSFETS
-		Framework::AnalogWrite(ControlPins[ActiveWinding.Source], INT16_MAX);
-		Framework::DigitalWrite(ControlPins[ActiveWinding.Sink], false);
+		Framework::DigitalWrite(ControlPins[ActiveWinding.Sink], Framework::Signal::NFetClosed);
+		Framework::AnalogWrite(ControlPins[ActiveWinding.Source], Framework::Signal::PFetInterpolate(Duty));
+		//Framework::AnalogWrite(ControlPins[ActiveWinding.Source], 220);
 
 		ActiveWinding.Source = -1;
 		ActiveWinding.Sink = -1;

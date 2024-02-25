@@ -50,7 +50,7 @@ struct MotorWinding
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 class MotorDriver
-{	
+{
 private:
 	int RegisteredWinding {0};
 
@@ -70,6 +70,8 @@ private:
 	/// Current access index into the commutation table. 
 	int CurrentStep {-1};
 
+	int Duty {0};
+
 	/// Motor Enable State
 	bool MotorOn {false};
 
@@ -77,7 +79,6 @@ private:
 	MotorWinding ActiveWinding;
 	
 	//PWM
-	uint8_t Duty {255};
 public:
 
 	void Ready();

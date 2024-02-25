@@ -20,7 +20,7 @@ class MotorController
 private:
 	MotorSensors Sensors;
 	MotorDriver Motor;
-	PIDController<float, uint8_t> SpeedPID;
+	PIDController<float, int> SpeedPID;
 	
 	uint8_t TargetRPM{0};
 
