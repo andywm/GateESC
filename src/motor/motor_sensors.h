@@ -33,6 +33,7 @@ public:
 		ConfigData Config;
 		Timer MeasurementTimer;
 		int OldPosition {0};
+		int Ticks {0};
 		float TimeInterval {0.0f};
 		//uint8_t RPM;
 
@@ -48,6 +49,7 @@ private:
 	int SensorsPins[GlobalMotor::PhaseCount];
 
 	static int PositionTick;
+	static int QuadraturePos;
 
 	int LastHash = -1;
 	int CountHash = 0;
@@ -64,12 +66,15 @@ private:
 	static void PositionInterrupt();
 	void UpdateTachometerHalls();
 	void UpdateTachometerPos();
+	void UpdateTachometerQuadrature();
 
 public:
 	//Initialisation
 	void DeclareHallPins(int Pin1, int Pin2, int Pin3);
 	int DeclareSensorState(int H1, int H2, int H3);
 	void DeclarePositionPins(int Pin);
+	void DeclareQuadrature(int PinA, int PinB);
+	void MotorStarted();
 
 	// Update
 	void Sense();

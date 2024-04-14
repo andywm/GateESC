@@ -31,7 +31,7 @@ struct MotorControlPage : public DebugPage
 			SetLine(0, "Step #              ", step.Value);
 			SetLine(1, "Measured RPM ###    ", rpm.Value);
 			SetLine(2, "PWM ### ANG ###     ", pwm.Value, angle.Value);
-			SetLine(3, "                    ");
+			SetLine(3, "Dial Sym ##         ", sym.Value);
 			//SetLine(3, "A# B# C#            ", a.Value, b.Value, c.Value);
 			//SetLine(2, "Angle ###*          ", angle.Value);
 			//SetLine(2, "                    ");
@@ -47,6 +47,7 @@ struct MotorControlPage : public DebugPage
 	DebugValue<int> a = {Dirty};
 	DebugValue<int> b = {Dirty};
 	DebugValue<int> c = {Dirty};
+	DebugValue<int> sym = {Dirty};
 } ControllerDebug;
 
 
@@ -96,12 +97,12 @@ void MotorController::Init()
 	Motor.BindClockwiseWinding(State_001, Winding_BC);
 
 	//Anti-Clockwise State|Response
-	Motor.BindAntiClockwiseWinding(State_101, Winding_AB);
-	Motor.BindAntiClockwiseWinding(State_100, Winding_CB);
-	Motor.BindAntiClockwiseWinding(State_110, Winding_AC);
-	Motor.BindAntiClockwiseWinding(State_010, Winding_BC);
-	Motor.BindAntiClockwiseWinding(State_011, Winding_CA);
-	Motor.BindAntiClockwiseWinding(State_001, Winding_BA);
+	Motor.BindAntiClockwiseWinding(State_101, Winding_AB); //Winding_AB
+	Motor.BindAntiClockwiseWinding(State_100, Winding_AC); //Winding_CB
+	Motor.BindAntiClockwiseWinding(State_110, Winding_BC); //Winding_AC
+	Motor.BindAntiClockwiseWinding(State_010, Winding_BA); //Winding_BC
+	Motor.BindAntiClockwiseWinding(State_011, Winding_CA); //Winding_CA
+	Motor.BindAntiClockwiseWinding(State_001, Winding_CB); //Winding_BA
 
 	//Configure speed control PID.
 	SpeedPID.SetKp(1);
@@ -115,6 +116,8 @@ void MotorController::Init()
  
 	Motor.Ready();
 	Sensors.Tachometer.MeasurementTimer.Begin();
+	Sensors.DeclareQuadrature(Framework::Pinout::QUADRATURE_A, Framework::Pinout::QUADRATURE_B);
+
 
 	// Add Debug Page
 	Framework::Debug.AddPage(ControllerDebug);
@@ -126,6 +129,16 @@ void MotorController::Update()
 {
 	Sensors.Sense();
 
+	if (TargetAngle != -1)
+	{
+		if (Sensors.GetAngle() == TargetAngle)
+		{
+			AtTarget = true;
+			Stop();
+			return;
+		}
+	}
+
 	//Debug Stuff
 	ControllerDebug.rpm = Sensors.GetRPM();
 	ControllerDebug.step = Sensors.GetStep();
@@ -133,6 +146,7 @@ void MotorController::Update()
 	ControllerDebug.b = Sensors.DebugSensorPins[1];
 	ControllerDebug.c = Sensors.DebugSensorPins[2];
 	ControllerDebug.angle = Sensors.GetAngle();
+	ControllerDebug.sym = 1 + ((TargetAngle - (TargetAngle<200? 2 : 5 )) / 9);
 
 	//if(Sensors.ConsumeChange())
 	//{
@@ -145,7 +159,6 @@ void MotorController::Update()
 		int PWM = SpeedPID.PID(Sensors.GetRPM(), Sensors.GetTimeInterval());
 		Motor.SetDuty(PWM); ///COMMENTED OUT FOR SCREEN TEST
 		ControllerDebug.pwm = PWM;
-
 	}
 
 	//Motor Control
@@ -166,6 +179,8 @@ void MotorController::SetForward()
 {
 	Motor.SetMotorDirection(ESpinDirection::EClockwise);
 	Motor.StartMotor();
+
+	Sensors.MotorStarted();
 }
 
 //------------------------------------------------------------------------------
@@ -174,6 +189,8 @@ void MotorController::SetBackward()
 {
 	Motor.SetMotorDirection(ESpinDirection::EAntiClockwise);
 	Motor.StartMotor();
+
+	Sensors.MotorStarted();
 }
 
 //------------------------------------------------------------------------------
@@ -183,6 +200,18 @@ void MotorController::SetSpeed(uint8_t RPM)
 	TargetRPM = RPM;
 	SpeedPID.SetTarget(static_cast<float>(RPM));
 }
+
+void MotorController::SetTargetPosition(int Angle)
+{
+	AtTarget = false;
+	TargetAngle = Angle;
+}
+
+bool MotorController::IsAtTargetPosition()
+{
+	return AtTarget;
+}
+
 
 //uint8_t MotorController::GetSpeedControlDuty()
 //{

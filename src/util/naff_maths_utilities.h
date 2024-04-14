@@ -8,7 +8,7 @@ Description:
 ------------------------------------------------------------------------------*/
 #pragma once
 
-struct Maths
+namespace Maths
 {
 	static constexpr int CalcFactorial(int Input)
 	{

@@ -10,6 +10,7 @@ Description:
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 #include "motor/motor_sensors.h"
+#include "quadrature.pio.h"
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
@@ -50,6 +51,7 @@ int MotorSensors::DeclareSensorState(int H1, int H2, int H3)
 }
 
 int MotorSensors::PositionTick = 0;
+int MotorSensors::QuadraturePos = 0;
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 void MotorSensors::DeclarePositionPins(int Pin)
@@ -62,12 +64,26 @@ void MotorSensors::DeclarePositionPins(int Pin)
 #endif
 }
 
+PIO pio = pio0;
+const uint sm = 0;
+
+void MotorSensors::DeclareQuadrature(int PinA, int PinB)
+{
+	//Pins A and B must be consecutive, with A being the numerically earlier pin.
+	Framework::PinMode(PinA, EInput);
+	Framework::PinMode(PinB, EInput);
+
+	pio_add_program(pio, &quadrature_encoder_program);
+  	quadrature_encoder_program_init(pio, sm, PinA, 0);
+}
+
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 void MotorSensors::Sense()
 {
 	ReadState();
-	UpdateTachometerHalls();
+	//UpdateTachometerHalls();
+	UpdateTachometerQuadrature();
 
 	//Note: Currently the position sensor is higher resolution than the hall sense
 	//circuit, but the read isn't as reliable yet. For now use the HSC, but in future
@@ -170,6 +186,72 @@ void MotorSensors::UpdateTachometerPos()
 		//reset.
 		Tachometer.MeasurementTimer.Restart();
 	}
+}
+
+void MotorSensors::UpdateTachometerQuadrature()
+{
+	//Todo. Look into implementing some fixed point maths to replace this.
+
+  	int NewValue = quadrature_encoder_get_count(pio, sm);
+  	int Delta = NewValue - Tachometer.OldPosition;
+  	Tachometer.OldPosition = NewValue;
+
+	QuadraturePos += Delta;
+	if(QuadraturePos >= 640)
+	{
+		QuadraturePos -= 640;
+  	}
+	if(QuadraturePos < 0)
+	{
+		QuadraturePos += 640;
+	}
+
+	Tachometer.Ticks += Delta>0? Delta : -Delta;
+	if (Tachometer.MeasurementTimer.ReadTime() > 50000)
+	{
+		Tachometer.TimeInterval = Tachometer.MeasurementTimer.ReadTime() * 1e-6;
+		//reset.
+		Tachometer.MeasurementTimer.Restart();
+
+		static constexpr float QuadDivisionToDegrees = 360.0f / 640.0f; 
+		const float AngularSpeedDegPerSecond = ((float)Tachometer.Ticks*QuadDivisionToDegrees) / Tachometer.TimeInterval;
+		//const float RPMf = (AngularSpeedDegPerSecond * 60.0f) / (2.0f*PI); 
+		const float RPMf = AngularSpeedDegPerSecond / 6.0f;
+
+		RPM = static_cast<int>( RPMf + 0.5f );
+		Tachometer.Ticks = 0;
+	}
+
+	//Quad Div Resolution is 640. Need to figure out if I can do any of this in integer maths.
+
+
+
+
+	//round
+#if USE_RPM_AVG
+	///rpm_old = rpm_mid;
+	//rpm_mid = rpm_new;
+	//rpm_new = static_cast<int>( RPMf + 0.5f );
+
+	//RPM = avg_two_most_similar(rpm_old, rpm_mid, rpm_new);
+	//RPM = 10; // static_cast<int>( RPMf + 0.5f );
+#else
+	RPM = static_cast<int>( RPMf + 0.5f );
+#endif
+
+	static constexpr float ToDeg = 9.0f/16.0f;
+	float Rot = QuadraturePos;
+	PositionTick = Rot *ToDeg;
+}
+
+//Rename to ResetTachometer()?
+void MotorSensors::MotorStarted()
+{
+	bChanged = true;
+	Tachometer.Ticks = 0;
+	Tachometer.TimeInterval = 0;
+	RPM = 0;
+	Tachometer.MeasurementTimer.Restart();
 }
 
 //------------------------------------------------------------------------------

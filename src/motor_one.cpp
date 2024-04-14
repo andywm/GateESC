@@ -37,16 +37,52 @@ void MotorOne::Run()
 void MotorOne::Init()
 {
 	Control.Init();
-	Control.SetSpeed(25);
+	Control.SetSpeed(15);
 	Control.SetForward();
+	//Control.SetBackward();
 	Framework::Debug.Init();
 	Framework::Debug.SetPage(0);
 }
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
+int sequenceOnce[7] = {false}; 
+int seq = 0;
+Timer Delay;
+
 void MotorOne::Loop()
 {
+	//some random address...
+	//23,   5,   16,   12,   32,   10,   1
+	//208 : 42 : 143 : 106 : 291 : 88, : 5
+
+	static const int sequence[] = {208, 42, 143, 106, 291, 88, 5}; 
+	
+	if (seq < 7)
+	{
+		if (!sequenceOnce[seq])
+		{
+			sequenceOnce[seq] = true;
+			Control.SetTargetPosition(sequence[seq]);
+
+			if(seq % 2 == 0)
+			{
+				Control.SetForward();
+			}
+			else
+			{
+				Control.SetBackward();
+			}
+		}
+
+		if (Control.IsAtTargetPosition())
+		{
+			seq++;
+			delay(2000);
+			return;
+		}
+	}
+
 	Control.Update();
 	Framework::Debug.Process();
 }

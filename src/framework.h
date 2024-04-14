@@ -52,6 +52,8 @@ public:
 		constexpr static uint8_t ESC_HALL_3		= 11;
 		constexpr static uint8_t I2C0_SDA		= 12;
 		constexpr static uint8_t I2C0_SCL		= 13;
+		constexpr static uint8_t QUADRATURE_A	= 14;
+		constexpr static uint8_t QUADRATURE_B	= 15;
 	};
 
 	struct Signal

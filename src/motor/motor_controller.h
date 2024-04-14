@@ -23,6 +23,8 @@ private:
 	PIDController<float, int> SpeedPID;
 	
 	uint8_t TargetRPM{0};
+	int TargetAngle{-1};
+	bool AtTarget = false;
 
 public:
 	void Init();
@@ -31,5 +33,6 @@ public:
 	void SetForward();
 	void SetBackward();
 	void SetSpeed(uint8_t RPM);
-	void SetTargetPosition() {};
+	void SetTargetPosition(int Angle);
+	bool IsAtTargetPosition();
 };
