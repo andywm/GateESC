@@ -70,6 +70,8 @@ private:
 	/// Current access index into the commutation table. 
 	int CurrentStep {-1};
 
+	int TargetDuty {0};
+
 	int Duty {0};
 
 	/// Motor Enable State
@@ -78,11 +80,7 @@ private:
 	/// ActivePins
 	MotorWinding ActiveWinding;
 	
-	//PWM
 public:
-
-	void Ready();
-
 	/// Set io pins for phase control.
 	/// 1. SourcePin - gate for vcc mosfet.
 	/// 2. SinkPin - gate for ground mosfet.
@@ -102,6 +100,9 @@ public:
 
 	/// Set spin direction.
 	void SetMotorDirection(ESpinDirection Direction);
+
+	/// Motor activity state. On/Off.
+	bool IsMotorStarted() const;
 
 	/// Raise enable flag.
 	void StartMotor();

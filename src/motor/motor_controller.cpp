@@ -19,37 +19,50 @@ Description:
 //------------------------------------------------------------------------------
 // Debug Info
 //------------------------------------------------------------------------------
-struct MotorControlPage : public DebugPage
+struct HighLevelStatusPage : public DebugPage
 {
 	virtual bool Update() override
 	{
-		if(Dirty)
-		{
-			Dirty = false;
+		if (!Dirty) return false;
 
-			//______L__|12345678901234567890|
-			SetLine(0, "Step #              ", step.Value);
-			SetLine(1, "Measured RPM ###    ", rpm.Value);
-			SetLine(2, "PWM ### ANG ###     ", pwm.Value, angle.Value);
-			SetLine(3, "Dial Sym ##         ", sym.Value);
-			//SetLine(3, "A# B# C#            ", a.Value, b.Value, c.Value);
-			//SetLine(2, "Angle ###*          ", angle.Value);
-			//SetLine(2, "                    ");
-			
-			return true;
-		}
-		return false;
+		//______L__|12345678901234567890|
+		SetLine(0, "RPM ###      ANG ###", rpm.Value, angle.Value);
+		SetLine(1, "PWM ### ### ### ### ", pwm1.Value, pwm2.Value, pwm3.Value, pwm4.Value);
+		SetLine(2, "                    ");
+		SetLine(3, "Dial SYM ##         ", sym.Value);
+		Dirty = false;
+		return true;
 	}
 	DebugValue<int> rpm = {Dirty};
-	DebugValue<int> step = {Dirty};
 	DebugValue<int> angle = {Dirty};
-	DebugValue<int> pwm = {Dirty};
-	DebugValue<int> a = {Dirty};
-	DebugValue<int> b = {Dirty};
-	DebugValue<int> c = {Dirty};
+	DebugValue<int> pwm1 = {Dirty};
+	DebugValue<int> pwm2 = {Dirty};
+	DebugValue<int> pwm3 = {Dirty};
+	DebugValue<int> pwm4 = {Dirty};
 	DebugValue<int> sym = {Dirty};
 } ControllerDebug;
 
+//------------------------------------------------------------------------------
+// Debug Info - fundamental states, useful for validating/debugging new hardware.
+//------------------------------------------------------------------------------
+struct LowLevelStatusPage : public DebugPage
+{
+	DebugValue<int> step = {Dirty};
+	DebugValue<int> h1 = {Dirty};
+	DebugValue<int> h2 = {Dirty};
+	DebugValue<int> h3 = {Dirty};
+
+	virtual bool Update() override
+	{
+		if (!Dirty) return false;
+
+		//______L__|12345678901234567890|
+		SetLine(0, "Step #              ", step.Value);
+		SetLine(1, "A# B# C#            ", h1.Value, h2.Value, h3.Value);
+		Dirty = false;
+		return true;
+	}
+} DebugFundamentals;
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
@@ -58,17 +71,18 @@ void MotorController::Init()
 	enum Phases { A,B,C };
 	Serial.println("===Config===");
 
-	// Create IO Bindings for ESC Switcher Pins
+	// Create IO Bindings for ESC Switcher Pins.
 	Motor.DeclarePinsForPhase(A, Framework::Pinout::ESC_SOURCE_A, Framework::Pinout::ESC_SINK_A);
 	Motor.DeclarePinsForPhase(B, Framework::Pinout::ESC_SOURCE_B, Framework::Pinout::ESC_SINK_B);
 	Motor.DeclarePinsForPhase(C, Framework::Pinout::ESC_SOURCE_C, Framework::Pinout::ESC_SINK_C);
 
-	// Create IO Bindings for Hall Sensor Pins
+	//Create IO Binding, a PIO handler for Position Sensor.
+	Sensors.DeclareQuadraturePins(Framework::Pinout::QUADRATURE_A, Framework::Pinout::QUADRATURE_B);
+
+	// Create IO Bindings for Hall Sensor Pins.
 	Sensors.DeclareHallPins(Framework::Pinout::ESC_HALL_1, Framework::Pinout::ESC_HALL_2, Framework::Pinout::ESC_HALL_3);
 
-	Sensors.DeclarePositionPins(Framework::Pinout::POS_SENSE);
-
-	// Declare Valid Hall States
+	// Declare Valid Hall States.
 	const int State_101 = Sensors.DeclareSensorState(1,0,1);
 	const int State_100 = Sensors.DeclareSensorState(1,0,0);
 	const int State_110 = Sensors.DeclareSensorState(1,1,0);
@@ -76,11 +90,7 @@ void MotorController::Init()
 	const int State_011 = Sensors.DeclareSensorState(0,1,1);
 	const int State_001 = Sensors.DeclareSensorState(0,0,1);
 
-	//Set Speed Measurement Constants
-	Sensors.Tachometer.Config.MeasureOnStep = State_100;
-	Sensors.Tachometer.Config.StepAngle = 18;
-
-	// Create Windings; Sink to Source
+	// Create Windings; Sink to Source.
 	const int Winding_AB = Motor.DeclareWinding(A, B);
 	const int Winding_AC = Motor.DeclareWinding(A, C);
 	const int Winding_BA = Motor.DeclareWinding(B, A);
@@ -88,7 +98,7 @@ void MotorController::Init()
 	const int Winding_CA = Motor.DeclareWinding(C, A);
 	const int Winding_CB = Motor.DeclareWinding(C, B);
 
-	//Clockwise State|Response
+	//Clockwise; Hall State & Winding Response.
 	Motor.BindClockwiseWinding(State_101, Winding_BA);
 	Motor.BindClockwiseWinding(State_100, Winding_CA);
 	Motor.BindClockwiseWinding(State_110, Winding_CB);
@@ -96,74 +106,96 @@ void MotorController::Init()
 	Motor.BindClockwiseWinding(State_011, Winding_AC);
 	Motor.BindClockwiseWinding(State_001, Winding_BC);
 
-	//Anti-Clockwise State|Response
-	Motor.BindAntiClockwiseWinding(State_101, Winding_AB); //Winding_AB
-	Motor.BindAntiClockwiseWinding(State_100, Winding_AC); //Winding_CB
-	Motor.BindAntiClockwiseWinding(State_110, Winding_BC); //Winding_AC
-	Motor.BindAntiClockwiseWinding(State_010, Winding_BA); //Winding_BC
-	Motor.BindAntiClockwiseWinding(State_011, Winding_CA); //Winding_CA
-	Motor.BindAntiClockwiseWinding(State_001, Winding_CB); //Winding_BA
+	//Anti-Clockwise; Hall State & Winding Response.
+	Motor.BindAntiClockwiseWinding(State_101, Winding_AB);
+	Motor.BindAntiClockwiseWinding(State_100, Winding_AC);
+	Motor.BindAntiClockwiseWinding(State_110, Winding_BC);
+	Motor.BindAntiClockwiseWinding(State_010, Winding_BA);
+	Motor.BindAntiClockwiseWinding(State_011, Winding_CA);
+	Motor.BindAntiClockwiseWinding(State_001, Winding_CB);
 
 	//Configure speed control PID.
-	SpeedPID.SetKp(1);
-	SpeedPID.SetKi(1.2f);
-	SpeedPID.SetKd(2.0f);
-	SpeedPID.SetInputRange(0.0f, 420.0f); //motor max rpm is 90.
-	SpeedPID.SetOutputRange(0, UINT8_MAX); //output in pwm, assume linear for now.
+	SpeedPID.SetKp(1.0f);
+	SpeedPID.SetKi(0.2f);
+	SpeedPID.SetKd(5.0f);
+	SpeedPID.SetInputRange(0.0f, 200.0f);//420
+	SpeedPID.SetOutputRange(0, UINT8_MAX);
 
 	Serial.println("Motor Ready...");
 	delay(100);
  
-	Motor.Ready();
-	Sensors.Tachometer.MeasurementTimer.Begin();
-	Sensors.DeclareQuadrature(Framework::Pinout::QUADRATURE_A, Framework::Pinout::QUADRATURE_B);
-
+	Sensors.ResetSpeedMeasurement();
 
 	// Add Debug Page
 	Framework::Debug.AddPage(ControllerDebug);
+	ControllerDebug.pwm1.Value = 0;
+	ControllerDebug.pwm2.Value = 0;
+	ControllerDebug.pwm3.Value = 0;
+	ControllerDebug.pwm4.Value = 0;
 }
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+struct DebugUpdater
+{
+	MotorController& Controller;
+	~DebugUpdater()
+	{
+		Controller.UpdateDebug();
+	}
+};
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 void MotorController::Update()
 {
-	Sensors.Sense();
+	DebugUpdater UpdateDebugDisplay {*this};
 
-	if (TargetAngle != -1)
+	Sensors.SenseCommutationStep();
+	Sensors.SensePosition();
+	const bool bDoEffortCalculation = Sensors.SenseSpeed();
+
+	if (!Motor.IsMotorStarted())
 	{
-		if (Sensors.GetAngle() == TargetAngle)
-		{
-			AtTarget = true;
-			Stop();
-			return;
-		}
+		return;
 	}
 
+	if (Sensors.GetAngle() == TargetAngle)
+	{
+		AtTarget = true;
+		Stop();
+		return;
+	}
+
+	Motor.SetCommutatorStep(Sensors.GetStep());
+
+	//Speed Control.
+	if (bDoEffortCalculation)
+	{
+		const int PWM = SpeedPID.PID(Sensors.GetRPM(), Sensors.GetRpmDeltaTime());
+		Motor.SetDuty(PWM);
+		ControllerDebug.pwm4 = ControllerDebug.pwm3.Value;
+		ControllerDebug.pwm3 = ControllerDebug.pwm2.Value;
+		ControllerDebug.pwm2 = ControllerDebug.pwm1.Value;
+		ControllerDebug.pwm1 = PWM;
+	}
+
+	Motor.Drive();
+}
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void MotorController::UpdateDebug()
+{
 	//Debug Stuff
-	ControllerDebug.rpm = Sensors.GetRPM();
-	ControllerDebug.step = Sensors.GetStep();
-	ControllerDebug.a = Sensors.DebugSensorPins[0];
-	ControllerDebug.b = Sensors.DebugSensorPins[1];
-	ControllerDebug.c = Sensors.DebugSensorPins[2];
+	DebugFundamentals.step = Sensors.GetStep();
+	DebugFundamentals.h1 = Sensors.DebugSensorPins[0];
+	DebugFundamentals.h2 = Sensors.DebugSensorPins[1];
+	DebugFundamentals.h3 = Sensors.DebugSensorPins[2];
+
+	ControllerDebug.rpm = Sensors.GetRPM(); 
 	ControllerDebug.angle = Sensors.GetAngle();
 	ControllerDebug.sym = 1 + ((TargetAngle - (TargetAngle<200? 2 : 5 )) / 9);
-
-	//if(Sensors.ConsumeChange())
-	//{
-		//Framework::Message("RPM = %d", Sensors.GetRPM());
-		//ControllerDebug.pwm = pwm;
-	//}
-
-	if(Sensors.GetChanged())
-	{
-		int PWM = SpeedPID.PID(Sensors.GetRPM(), Sensors.GetTimeInterval());
-		Motor.SetDuty(PWM); ///COMMENTED OUT FOR SCREEN TEST
-		ControllerDebug.pwm = PWM;
-	}
-
-	//Motor Control
-	Motor.SetCommutatorStep(Sensors.GetStep());
-	Motor.Drive();
 }
 
 //------------------------------------------------------------------------------
@@ -179,8 +211,8 @@ void MotorController::SetForward()
 {
 	Motor.SetMotorDirection(ESpinDirection::EClockwise);
 	Motor.StartMotor();
-
-	Sensors.MotorStarted();
+	Sensors.ResetSpeedMeasurement();
+	SpeedPID.Reset();
 }
 
 //------------------------------------------------------------------------------
@@ -189,8 +221,8 @@ void MotorController::SetBackward()
 {
 	Motor.SetMotorDirection(ESpinDirection::EAntiClockwise);
 	Motor.StartMotor();
-
-	Sensors.MotorStarted();
+	SpeedPID.Reset();
+	Sensors.ResetSpeedMeasurement();
 }
 
 //------------------------------------------------------------------------------
@@ -201,20 +233,17 @@ void MotorController::SetSpeed(uint8_t RPM)
 	SpeedPID.SetTarget(static_cast<float>(RPM));
 }
 
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void MotorController::SetTargetPosition(int Angle)
 {
 	AtTarget = false;
 	TargetAngle = Angle;
 }
 
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool MotorController::IsAtTargetPosition()
 {
 	return AtTarget;
 }
-
-
-//uint8_t MotorController::GetSpeedControlDuty()
-//{
-//	SpeedPID.PID(Sensors.GetRPM(), Sensors.GetTimeInterval());
-//
-//}

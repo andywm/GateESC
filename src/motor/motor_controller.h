@@ -15,6 +15,8 @@ Description:
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
+constexpr int NO_TARGET_ANGLE = -1;
+
 class MotorController
 {
 private:
@@ -23,7 +25,7 @@ private:
 	PIDController<float, int> SpeedPID;
 	
 	uint8_t TargetRPM{0};
-	int TargetAngle{-1};
+	int TargetAngle {NO_TARGET_ANGLE};
 	bool AtTarget = false;
 
 public:
@@ -35,4 +37,6 @@ public:
 	void SetSpeed(uint8_t RPM);
 	void SetTargetPosition(int Angle);
 	bool IsAtTargetPosition();
+
+	void UpdateDebug();
 };

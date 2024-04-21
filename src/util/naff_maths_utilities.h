@@ -10,6 +10,9 @@ Description:
 
 namespace Maths
 {
+	constexpr static int kNativeResPerRev = 640;
+	constexpr static float kNativeAngleToDegrees = (float)360 / (float)kNativeResPerRev;
+
 	static constexpr int CalcFactorial(int Input)
 	{
 		return Input > 0 
@@ -55,5 +58,16 @@ namespace Maths
 	static T Abs(T A)
 	{
 		return A >= 0 ? A : -A;
+	}
+
+	template<typename T>
+	static T Round(float A)
+	{
+		return static_cast<T>(A + 0.5f);
+	}
+
+	static int NativeAngToDeg(int Native)
+	{
+		return static_cast<float>(Native) * kNativeAngleToDegrees;
 	}
 };

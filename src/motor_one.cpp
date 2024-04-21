@@ -37,7 +37,7 @@ void MotorOne::Run()
 void MotorOne::Init()
 {
 	Control.Init();
-	Control.SetSpeed(15);
+	Control.SetSpeed(50);
 	Control.SetForward();
 	//Control.SetBackward();
 	Framework::Debug.Init();
@@ -50,12 +50,15 @@ int sequenceOnce[7] = {false};
 int seq = 0;
 Timer Delay;
 
+#define DIAL_TEST 0
+
 void MotorOne::Loop()
 {
 	//some random address...
 	//23,   5,   16,   12,   32,   10,   1
 	//208 : 42 : 143 : 106 : 291 : 88, : 5
 
+#if DIAL_TEST
 	static const int sequence[] = {208, 42, 143, 106, 291, 88, 5}; 
 	
 	if (seq < 7)
@@ -82,6 +85,7 @@ void MotorOne::Loop()
 			return;
 		}
 	}
+#endif
 
 	Control.Update();
 	Framework::Debug.Process();

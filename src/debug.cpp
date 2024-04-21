@@ -118,7 +118,7 @@ void DebugSystem::Process()
 bool DebugSystem::IsRateLimited()
 {
 	//return LimitTimer.ReadTime() < 333333;
-	return LimitTimer.ReadTime() < 200000;
+	return LimitTimer.ReadTime() < 100000;
 }
 
 //------------------------------------------------------------------------------

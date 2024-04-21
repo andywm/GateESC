@@ -22,12 +22,6 @@ Description:
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-void MotorDriver::Ready()
-{
-}
-
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
 void MotorDriver::DeclarePinsForPhase(int Phase, int SourcePin, int SinkPin)
 {
 	Framework::Message(" Phase %d; Source %d; Sink %d", Phase, SourcePin, SinkPin );
@@ -90,6 +84,11 @@ void MotorDriver::SetMotorDirection(ESpinDirection Direction)
 	SpinDirection = Direction;
 }
 
+bool MotorDriver::IsMotorStarted() const
+{
+	return MotorOn;
+}
+
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 void MotorDriver::StartMotor()
@@ -121,7 +120,7 @@ void MotorDriver::CloseAllWindings()
 //------------------------------------------------------------------------------
 void MotorDriver::SetDuty(uint8_t PWM)
 {
-	Duty = PWM;
+	TargetDuty = PWM;
 }
 
 //------------------------------------------------------------------------------
@@ -136,17 +135,31 @@ const char* DebugActiveWinding(int Winding, int Offset)
 //------------------------------------------------------------------------------
 void MotorDriver::Drive()
 {
-	if( MotorOn && ActiveWinding.Sink != -1 && ActiveWinding.Source != -1 )
+	if (!MotorOn)
 	{
+		return;
+	}
+
+	if (ActiveWinding.Sink != -1 && ActiveWinding.Source != -1)
+	{
+		Duty = TargetDuty;
 		//Framework::Message( "High %s ; Low %s", DebugActiveWinding(ActiveWinding.Source, PinOffset::ESource),  DebugActiveWinding(ActiveWinding.Sink, PinOffset::ESink ));
 		//Framework::Message( "High %d ; Low %d", ControlPins[ActiveWinding.Source], ControlPins[ActiveWinding.Sink]);
 		//Framework::Message( "-----------------------------");
 
 		Framework::DigitalWrite(ControlPins[ActiveWinding.Sink], Framework::Signal::NFetClosed);
 		Framework::AnalogWrite(ControlPins[ActiveWinding.Source], Framework::Signal::PFetInterpolate(Duty));
-		//Framework::AnalogWrite(ControlPins[ActiveWinding.Source], 220);
 
 		ActiveWinding.Source = -1;
 		ActiveWinding.Sink = -1;
+	}
+	else if (Duty != TargetDuty)
+	{
+		//Update duty cycle mid state.
+		Duty = TargetDuty;
+
+		const int WindingIdx = SpinDirection == ESpinDirection::EClockwise? WindingLookupCW[CurrentStep] : WindingLookupACW[CurrentStep];
+		const int Source = WindingTable[WindingIdx].Source;
+		Framework::AnalogWrite(ControlPins[Source], Framework::Signal::PFetInterpolate(Duty));
 	}
 }

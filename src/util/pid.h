@@ -45,6 +45,7 @@ public:
 	void SetKp(float Kp) { kProportional = Kp; }
 	void SetKi(float Ki) { kIntegral = Ki; }
 	void SetKd(float Kd) { kDerivative = Kd; }
+	void Reset() { Integral = 0; PrevError = 0; }
 
 private:
 	OutputType PID_Internal(InputType Input, float DeltaTime);

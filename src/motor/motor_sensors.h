@@ -23,66 +23,48 @@ Description:
 class MotorSensors
 {
 public:
-	struct TachometerData
-	{
-		struct ConfigData
-		{
-			int MeasureOnStep{0};
-			int StepAngle{0};
-		};
-		ConfigData Config;
-		Timer MeasurementTimer;
-		int OldPosition {0};
-		int Ticks {0};
-		float TimeInterval {0.0f};
-		//uint8_t RPM;
-
-
-	}Tachometer;
 	int DebugSensorPins[GlobalMotor::PhaseCount] = {0};
 
 private:
-	int RegisteredStates {0};
+	struct TachometerData
+	{
+		Timer MeasurementTimer;
+
+		//For the moment, and for my sanity. I'm working in degrees, but the native resolution of the sensor is 640 increments.
+		//I've just pretended for the moment that it's 360, and am taking apporximate values, but I should think of a way to work
+		//with the native units.
+		int Angle {0};
+		int AngleInDegrees {0};
+		int RPM {0};
+
+		int RawSensorAngle {0};
+		int TicksSinceLastSpeedMeasurement;
+		float RpmMeasurementDt {0.0f};
+	}
+	Tachometer;
+
+	int CommutatorStep {-1};
 
 	//Stores a hash of the sensor map.
 	int HashMapping[GlobalMotor::StepCount];
 	int SensorsPins[GlobalMotor::PhaseCount];
-
-	static int PositionTick;
-	static int QuadraturePos;
-
-	int LastHash = -1;
-	int CountHash = 0;
-
-	int RPM {0};
-	int CommutatorStep {-1};
-	bool bChanged {false};
-	int rpm_new{0};
-	int rpm_mid{0};
-	int rpm_old{0};
-
-private:
-	void ReadState();
-	static void PositionInterrupt();
-	void UpdateTachometerHalls();
-	void UpdateTachometerPos();
-	void UpdateTachometerQuadrature();
+	int RegisteredStates {0};
 
 public:
 	//Initialisation
 	void DeclareHallPins(int Pin1, int Pin2, int Pin3);
+	void DeclareQuadraturePins(int PinA, int PinB);
 	int DeclareSensorState(int H1, int H2, int H3);
-	void DeclarePositionPins(int Pin);
-	void DeclareQuadrature(int PinA, int PinB);
-	void MotorStarted();
+	void ResetSpeedMeasurement();
 
 	// Update
-	void Sense();
+	void SensePosition();
+	void SenseCommutationStep();
+	bool SenseSpeed();
 
 	// State
-	bool GetChanged() const;
 	int GetStep() const;
-	int GetRPM() const;
-	float GetTimeInterval() const;
 	int GetAngle() const;
+	int GetRPM() const;
+	float GetRpmDeltaTime() const;
 };
