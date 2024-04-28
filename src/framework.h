@@ -30,6 +30,19 @@ enum EPinMode
 	EModeMax,
 };
 
+struct PidDebugLog
+{
+	int SpeedInput;
+	float TimeInput;
+	float Error;
+	float pTerm;
+	float iTerm;
+	float dTerm;
+	float RawPid;
+	float InterPid;
+	float OutputPid;
+};
+
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 // Framework
@@ -38,6 +51,8 @@ enum EPinMode
 class Framework
 {
 public:
+	static PidDebugLog PigLog; 
+
 	struct Pinout
 	{
 		constexpr static uint8_t ESC_SINK_A		= 2;
@@ -78,15 +93,6 @@ public:
 		}
 	};
 
-private:
-	//static struct Timings
-	//{
-	//	unsigned long last_timestamp = 0;
-	//	unsigned long this_timestamp = 0;
-	//	unsigned long since = 0;
-	//} Timing;
-
-
 public:
 	static DebugSystem Debug;
 
@@ -97,6 +103,8 @@ public:
 		snprintf(Buffer,32,Msg, Args...);
 		Serial.println(Buffer);
 	}
+
+	static void PidDebugging();
 
 	// Halting Assert - asserts if the condition is false
 	static void Assert(bool bCondition, const char* Msg=nullptr);
@@ -122,4 +130,9 @@ public:
 
 	/// Wrapper function for Arduino AnalogWrite, for interface consistency.
 	static void AnalogWrite(int Pin, int PwmValue);
+};
+
+struct SpeedLogData
+{
+
 };

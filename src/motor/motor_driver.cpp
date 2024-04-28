@@ -121,6 +121,11 @@ void MotorDriver::CloseAllWindings()
 void MotorDriver::SetDuty(uint8_t PWM)
 {
 	TargetDuty = PWM;
+		
+	const int WindingIdx = SpinDirection == ESpinDirection::EClockwise? WindingLookupCW[CurrentStep] : WindingLookupACW[CurrentStep];
+	ActiveWinding = WindingTable[WindingIdx];
+
+	CloseAllWindings();
 }
 
 //------------------------------------------------------------------------------
@@ -156,10 +161,13 @@ void MotorDriver::Drive()
 	else if (Duty != TargetDuty)
 	{
 		//Update duty cycle mid state.
-		Duty = TargetDuty;
+		//Duty = TargetDuty;
+		//CloseAllWindings();
 
-		const int WindingIdx = SpinDirection == ESpinDirection::EClockwise? WindingLookupCW[CurrentStep] : WindingLookupACW[CurrentStep];
-		const int Source = WindingTable[WindingIdx].Source;
-		Framework::AnalogWrite(ControlPins[Source], Framework::Signal::PFetInterpolate(Duty));
+		//const int WindingIdx = SpinDirection == ESpinDirection::EClockwise? WindingLookupCW[CurrentStep] : WindingLookupACW[CurrentStep];
+		//const int Source = WindingTable[WindingIdx].Source;
+		//const int Sink = WindingTable[WindingIdx].Source;
+		//Framework::DigitalWrite(ControlPins[Sink], Framework::Signal::NFetClosed);
+		//Framework::AnalogWrite(ControlPins[Source], Framework::Signal::PFetInterpolate(Duty));
 	}
 }

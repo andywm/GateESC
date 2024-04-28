@@ -1,23 +1,39 @@
 #pragma once
 #include "naff_maths_utilities.h"
+#include "framework.h"
 
 template<typename InputType, typename OutputType>
 class PIDController
 {
 public:
+bool bAntiWindup = true;
+
 	OutputType PID(InputType Input, float DeltaTime)
 	{
+		PidDebugLog& Log = Framework::PigLog;
 		//static float DebugSampleTimer = 0.0f;
 		Input = Maths::Clamp(Input, InputMin, InputMax);
+		Log.SpeedInput = Input;
+		Log.TimeInput = DeltaTime;
 
 		const float Error = SetPoint - Input;
+		Log.Error = Error;
 
 		const float pTerm = Error;
+		Log.pTerm = pTerm;
+
 		const float iTerm = Integral + (Error * DeltaTime);
+		Log.iTerm = iTerm;
+		
 		const float dTerm = (Error - PrevError) / DeltaTime;
+		Log.dTerm = dTerm;
 
 		float Pid =  (pTerm * kProportional) + (iTerm * kIntegral) + (dTerm * kDerivative);
-		Integral = iTerm;
+		Log.RawPid = Pid;
+		if(bAntiWindup == false)
+		{
+			Integral = iTerm;
+		}
 		PrevError = Error;
 
 		//if (DebugSampleTimer <= 0.0f)
@@ -32,9 +48,12 @@ public:
 		//normalise range.
 		Pid = Maths::Clamp(Pid, InputMin, InputMax);
 		Pid = (Pid - InputMin) / (InputMax - InputMin);
+		Log.InterPid = Pid;
 
 		//convert to output range.
 		Pid = OutputMin + (OutputMax * Pid);
+		Log.OutputPid = Pid;
+		Framework::PidDebugging();
 
 		return Pid;
 	}

@@ -115,10 +115,10 @@ void MotorController::Init()
 	Motor.BindAntiClockwiseWinding(State_001, Winding_CB);
 
 	//Configure speed control PID.
-	SpeedPID.SetKp(1.0f);
-	SpeedPID.SetKi(0.2f);
-	SpeedPID.SetKd(5.0f);
-	SpeedPID.SetInputRange(0.0f, 200.0f);//420
+	SpeedPID.SetKp(1.5f);
+	SpeedPID.SetKi(1.2f);
+	SpeedPID.SetKd(0.0f);
+	SpeedPID.SetInputRange(0.0f, 420.0f);
 	SpeedPID.SetOutputRange(0, UINT8_MAX);
 
 	Serial.println("Motor Ready...");
@@ -172,6 +172,11 @@ void MotorController::Update()
 	//Speed Control.
 	if (bDoEffortCalculation)
 	{
+		if(Sensors.GetRPM() > 0)
+		{
+			SpeedPID.bAntiWindup = false;
+		}
+
 		const int PWM = SpeedPID.PID(Sensors.GetRPM(), Sensors.GetRpmDeltaTime());
 		Motor.SetDuty(PWM);
 		ControllerDebug.pwm4 = ControllerDebug.pwm3.Value;

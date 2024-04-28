@@ -154,5 +154,5 @@ int MotorSensors::GetRPM() const
 
 float MotorSensors::GetRpmDeltaTime() const
 {
-	return Tachometer.RpmMeasurementDt;
+	return 0.025f; //Tachometer.RpmMeasurementDt;
 }

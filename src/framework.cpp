@@ -22,6 +22,16 @@ Description:
 //Framework::Timings Framework::Timing;
 DebugSystem Framework::Debug;
 
+PidDebugLog Framework::PigLog;
+
+void Framework::PidDebugging()
+{
+	char Buffer[256];
+	snprintf(Buffer,256, "%d, %.5f, %.5f, %.5f, %.5f, %.5f, %.5f, %.5f, %.5f", PigLog.SpeedInput, PigLog.TimeInput, PigLog.Error, PigLog.pTerm, PigLog.iTerm, PigLog.dTerm, PigLog.RawPid, PigLog.InterPid, PigLog.OutputPid);
+
+	Serial.println(Buffer);
+}
+
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 /*

@@ -37,7 +37,7 @@ void MotorOne::Run()
 void MotorOne::Init()
 {
 	Control.Init();
-	Control.SetSpeed(50);
+	Control.SetSpeed(10);
 	Control.SetForward();
 	//Control.SetBackward();
 	Framework::Debug.Init();
@@ -50,7 +50,7 @@ int sequenceOnce[7] = {false};
 int seq = 0;
 Timer Delay;
 
-#define DIAL_TEST 0
+#define DIAL_TEST 1
 
 void MotorOne::Loop()
 {
