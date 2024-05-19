@@ -19,6 +19,12 @@ bool bAntiWindup = true;
 		const float Error = SetPoint - Input;
 		Log.Error = Error;
 
+		if (bInitial)
+		{
+			bInitial = false;
+			PrevError = Error;
+		}
+
 		const float pTerm = Error;
 		Log.pTerm = pTerm;
 
@@ -26,6 +32,7 @@ bool bAntiWindup = true;
 		Log.iTerm = iTerm;
 		
 		const float dTerm = (Error - PrevError) / DeltaTime;
+		Log.eDiff = Error - PrevError;
 		Log.dTerm = dTerm;
 
 		float Pid =  (pTerm * kProportional) + (iTerm * kIntegral) + (dTerm * kDerivative);
@@ -64,7 +71,7 @@ bool bAntiWindup = true;
 	void SetKp(float Kp) { kProportional = Kp; }
 	void SetKi(float Ki) { kIntegral = Ki; }
 	void SetKd(float Kd) { kDerivative = Kd; }
-	void Reset() { Integral = 0; PrevError = 0; }
+	void Reset() { bAntiWindup = true; Integral = 0; bInitial = true; }
 
 private:
 	OutputType PID_Internal(InputType Input, float DeltaTime);
@@ -74,6 +81,7 @@ private:
 	float kDerivative {0};
 	float Integral {0};
 	float PrevError {0};
+	bool bInitial{true};
 
 	InputType SetPoint {0};
 	InputType InputMin {0};

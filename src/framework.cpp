@@ -27,7 +27,7 @@ PidDebugLog Framework::PigLog;
 void Framework::PidDebugging()
 {
 	char Buffer[256];
-	snprintf(Buffer,256, "%d, %.5f, %.5f, %.5f, %.5f, %.5f, %.5f, %.5f, %.5f", PigLog.SpeedInput, PigLog.TimeInput, PigLog.Error, PigLog.pTerm, PigLog.iTerm, PigLog.dTerm, PigLog.RawPid, PigLog.InterPid, PigLog.OutputPid);
+	snprintf(Buffer,256, "S%.2f, T%.5f, E%.5f, P%.5f, I%.5f, D%.5f, e%.5f, r%.5f, n%.5f, o%.5f", PigLog.SpeedInput, PigLog.TimeInput, PigLog.Error, PigLog.pTerm, PigLog.iTerm, PigLog.dTerm, PigLog.eDiff, PigLog.RawPid, PigLog.InterPid, PigLog.OutputPid);
 
 	Serial.println(Buffer);
 }

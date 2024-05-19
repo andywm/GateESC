@@ -87,7 +87,7 @@ void MotorSensors::SensePosition()
 bool MotorSensors::SenseSpeed()
 {
 	//Sample at a fixed time step. This would be more accurate on a timer.
-	if (Tachometer.MeasurementTimer.ReadTime() < 25000)
+	if (Tachometer.MeasurementTimer.ReadTime() < TachometerTimeConstant_us)
 	{
 		return false;
 	}
@@ -95,7 +95,8 @@ bool MotorSensors::SenseSpeed()
 	Tachometer.RpmMeasurementDt = Tachometer.MeasurementTimer.ReadTime() * 1e-6;
 	const float AngleDegrees = Maths::NativeAngToDeg(Tachometer.TicksSinceLastSpeedMeasurement);
 	const float AngularSpeedDegPerSecond = AngleDegrees / Tachometer.RpmMeasurementDt;
-	Tachometer.RPM = Maths::Round<int>(AngularSpeedDegPerSecond / 6.0f);
+	Tachometer.RPMf = AngularSpeedDegPerSecond / 6.0f;
+	Tachometer.RPM = Maths::Round<int>(Tachometer.RPMf);
 
 	Tachometer.MeasurementTimer.Restart();
 	Tachometer.TicksSinceLastSpeedMeasurement = 0;
@@ -110,6 +111,7 @@ void MotorSensors::ResetSpeedMeasurement()
 	Tachometer.TicksSinceLastSpeedMeasurement = 0;
 	Tachometer.RpmMeasurementDt = 0;
 	Tachometer.RPM = 0;
+	Tachometer.RPMf = 0;
 }
 
 //------------------------------------------------------------------------------
@@ -152,7 +154,14 @@ int MotorSensors::GetRPM() const
 	return Tachometer.RPM;
 }
 
+float MotorSensors::GetRPMf() const
+{
+	return Tachometer.RPMf;
+}
+
 float MotorSensors::GetRpmDeltaTime() const
 {
-	return 0.025f; //Tachometer.RpmMeasurementDt;
+	constexpr float AsSeconds = static_cast<float>(TachometerTimeConstant_us) *  1e-6;
+	return AsSeconds;
+	//return 0.025f; //Tachometer.RpmMeasurementDt;
 }

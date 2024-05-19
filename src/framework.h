@@ -32,12 +32,13 @@ enum EPinMode
 
 struct PidDebugLog
 {
-	int SpeedInput;
+	float SpeedInput;
 	float TimeInput;
 	float Error;
 	float pTerm;
 	float iTerm;
 	float dTerm;
+	float eDiff;
 	float RawPid;
 	float InterPid;
 	float OutputPid;

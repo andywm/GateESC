@@ -23,6 +23,7 @@ Description:
 class MotorSensors
 {
 public:
+	static constexpr int TachometerTimeConstant_us = 50000;
 	int DebugSensorPins[GlobalMotor::PhaseCount] = {0};
 
 private:
@@ -40,6 +41,7 @@ private:
 		int RawSensorAngle {0};
 		int TicksSinceLastSpeedMeasurement;
 		float RpmMeasurementDt {0.0f};
+		float RPMf {0.0f};
 	}
 	Tachometer;
 
@@ -66,5 +68,6 @@ public:
 	int GetStep() const;
 	int GetAngle() const;
 	int GetRPM() const;
+	float GetRPMf() const;
 	float GetRpmDeltaTime() const;
 };

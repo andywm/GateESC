@@ -115,9 +115,9 @@ void MotorController::Init()
 	Motor.BindAntiClockwiseWinding(State_001, Winding_CB);
 
 	//Configure speed control PID.
-	SpeedPID.SetKp(1.5f);
-	SpeedPID.SetKi(1.2f);
-	SpeedPID.SetKd(0.0f);
+	SpeedPID.SetKp(2.0f);//1.5
+	SpeedPID.SetKi(0.5f);//1.2
+	SpeedPID.SetKd(0.1f);//0
 	SpeedPID.SetInputRange(0.0f, 420.0f);
 	SpeedPID.SetOutputRange(0, UINT8_MAX);
 
@@ -177,7 +177,7 @@ void MotorController::Update()
 			SpeedPID.bAntiWindup = false;
 		}
 
-		const int PWM = SpeedPID.PID(Sensors.GetRPM(), Sensors.GetRpmDeltaTime());
+		const int PWM = SpeedPID.PID(Sensors.GetRPMf(), Sensors.GetRpmDeltaTime());
 		Motor.SetDuty(PWM);
 		ControllerDebug.pwm4 = ControllerDebug.pwm3.Value;
 		ControllerDebug.pwm3 = ControllerDebug.pwm2.Value;
