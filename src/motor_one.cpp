@@ -50,15 +50,53 @@ int sequenceOnce[7] = {false};
 int seq = 0;
 Timer Delay;
 
-#define DIAL_TEST 1
+#define DIAL_TEST 0
+#define REPEATABILITY_TEST 1 
 
 void MotorOne::Loop()
+{
+#if DIAL_TEST
+	DialTest();
+#endif
+
+#if REPEATABILITY_TEST
+	RepeatabilityTest();
+#endif
+
+	Control.Update();
+	Framework::Debug.Process();
+}
+
+bool bWait = false;
+bool bResetRepeatabilityTarget = true;
+void MotorOne::RepeatabilityTest()
+{
+	if (Control.IsAtTargetPosition() && !bWait && !bResetRepeatabilityTarget)
+	{
+		bWait = true;
+		TestTimer.Restart();
+	}
+	else if(bWait && TestTimer.ReadTime() > 1000000)
+	{
+		bWait = false;
+		Control.SetTargetPosition(NO_TARGET_ANGLE);
+		Control.SetForward();
+
+		bResetRepeatabilityTarget = true;
+	}
+	else if(bResetRepeatabilityTarget)
+	{
+		bResetRepeatabilityTarget = false;
+		Control.SetTargetPosition(180);
+	}
+}
+
+void MotorOne::DialTest()
 {
 	//some random address...
 	//23,   5,   16,   12,   32,   10,   1
 	//208 : 42 : 143 : 106 : 291 : 88, : 5
 
-#if DIAL_TEST
 	static const int sequence[] = {208, 42, 143, 106, 291, 88, 5}; 
 	
 	if (seq < 7)
@@ -85,8 +123,4 @@ void MotorOne::Loop()
 			return;
 		}
 	}
-#endif
-
-	Control.Update();
-	Framework::Debug.Process();
 }

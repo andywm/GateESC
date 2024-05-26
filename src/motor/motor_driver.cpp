@@ -77,6 +77,22 @@ void MotorDriver::SetCommutatorStep(int Step)
 	}
 }
 
+void MotorDriver::SetCommutatorStepBraking(int Step, bool bInitial)
+{
+	Framework::Assert(Step >= 0 && Step < GlobalMotor::StepCount);
+
+	if( Step != CurrentStep || bInitial)
+	{
+		CurrentStep = Step;
+		//Framework::Message( "Step %d", CurrentStep );
+		
+		const int WindingIdx = SpinDirection == ESpinDirection::EAntiClockwise? WindingLookupCW[Step] : WindingLookupACW[Step];
+		ActiveWinding = WindingTable[WindingIdx];
+
+		CloseAllWindings();
+	}
+}
+
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 void MotorDriver::SetMotorDirection(ESpinDirection Direction)

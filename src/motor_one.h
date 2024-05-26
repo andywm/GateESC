@@ -22,9 +22,12 @@ class MotorOne
 {
 private:
 	MotorController Control;
+	Timer TestTimer;
 
 public:
 	void Run();
 	void Init();
 	void Loop();
+	void DialTest();
+	void RepeatabilityTest();
 };

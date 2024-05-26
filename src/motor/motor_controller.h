@@ -23,10 +23,15 @@ private:
 	MotorSensors Sensors;
 	MotorDriver Motor;
 	PIDController<float, int> SpeedPID;
+	PIDController<float, int> DistancePID;
 	
 	uint8_t TargetRPM{0};
 	int TargetAngle {NO_TARGET_ANGLE};
 	bool AtTarget = false;
+	bool bDoEffortCalculation = false;
+
+	enum class EControlMode {Stopped, Moving, Braking};
+	EControlMode ControlMode {EControlMode::Stopped};
 
 public:
 	void Init();
@@ -39,4 +44,8 @@ public:
 	bool IsAtTargetPosition();
 
 	void UpdateDebug();
+
+private:
+	void Moving();
+	void Braking();
 };

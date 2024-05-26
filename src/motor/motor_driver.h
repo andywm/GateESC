@@ -97,6 +97,7 @@ public:
 
 	/// Set commutator state from commutation table for the current step index.
 	void SetCommutatorStep(int Step);
+	void SetCommutatorStepBraking(int Step, bool bInitial);
 
 	/// Set spin direction.
 	void SetMotorDirection(ESpinDirection Direction);

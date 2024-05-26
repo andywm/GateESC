@@ -60,7 +60,7 @@ bool bAntiWindup = true;
 		//convert to output range.
 		Pid = OutputMin + (OutputMax * Pid);
 		Log.OutputPid = Pid;
-		Framework::PidDebugging();
+		//Framework::PidDebugging();
 
 		return Pid;
 	}
