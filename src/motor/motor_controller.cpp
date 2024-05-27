@@ -122,10 +122,10 @@ void MotorController::Init()
 	SpeedPID.SetOutputRange(0, UINT8_MAX);
 
 	//Configure target PID.
-	DistancePID.SetKp(1);
-	DistancePID.SetKi(1);
+	DistancePID.SetKp(0.5f);
+	DistancePID.SetKi(0);
 	DistancePID.SetKd(1);
-	DistancePID.SetInputRange(30, 0);
+	DistancePID.SetInputRange(-20, 0);
 	DistancePID.SetOutputRange(0, 1);
 
 	Serial.println("Motor Ready...");
@@ -171,25 +171,17 @@ void MotorController::Update()
 	{
 		Moving();
 	}
-
-	if (ControlMode == EControlMode::Braking)
-	{
-		Braking();
-	}
 }
 
-int maxStep = 5;
-int tempCounter = maxStep;
 void MotorController::Moving()
 {
 	if (Sensors.GetAngle() == TargetAngle)
 	{
 		AtTarget = true;
-		ControlMode = EControlMode::Braking;
-		tempCounter = maxStep;
+		ControlMode = EControlMode::Stopped;
+		Stop();
 		return;
 	}
-
 
 	Motor.SetCommutatorStep(Sensors.GetStep());
 
@@ -199,17 +191,20 @@ void MotorController::Moving()
 		if(Sensors.GetRPM() > 0)
 		{
 			SpeedPID.bAntiWindup = false;
-			DistancePID.bAntiWindup = false;
 		}
 
-		int diff = TargetAngle > Sensors.GetAngle() ? TargetAngle - Sensors.GetAngle() : Sensors.GetAngle() - TargetAngle; 
-
-		const int Dist = DistancePID.PID(diff, Sensors.GetRpmDeltaTime());
+		int Distance = DistanceToTarget();
+		if (Distance < 40)
+		{
+			DistancePID.bAntiWindup = false;
+			const int Dist = DistancePID.PID(Distance, Sensors.GetRpmDeltaTime());
+			SpeedPID.SetTarget(-Dist);
+		}
 		const int PWM = SpeedPID.PID(Sensors.GetRPMf(), Sensors.GetRpmDeltaTime());
 		
-		Motor.SetDuty(PWM);
+		//Framework::Message("Dist=%d", Dist);
 
-		Framework::Message("%d on %d", Dist, diff);
+		Motor.SetDuty(PWM);
 
 		ControllerDebug.pwm4 = ControllerDebug.pwm3.Value;
 		ControllerDebug.pwm3 = ControllerDebug.pwm2.Value;
@@ -220,29 +215,29 @@ void MotorController::Moving()
 	Motor.Drive();
 }
 
-void MotorController::Braking()
+int MotorController::DistanceToTarget()
 {
-	if(maxStep == tempCounter)
-	{
-		Motor.SetMotorDirection(ESpinDirection::EAntiClockwise);
-		Motor.SetCommutatorStepBraking(Sensors.GetStep(), true);
-		Motor.SetDuty(255);
-	}
-	Motor.Drive();
+	int Ang = 360;
 
-	if(tempCounter-- == 0)
+	if (TargetAngle == NO_TARGET_ANGLE)
 	{
-		Stop();
+		return Ang;
 	}
 
-	//Motor.SetDuty(40);
-	//Motor.Drive();
+	if (Motor.GetMotorDirection() == ESpinDirection::EClockwise)
+	{
+		Ang = Sensors.GetAngle() - TargetAngle;
+	}
+	else if (Motor.GetMotorDirection() == ESpinDirection::EAntiClockwise)
+	{
+		Ang = TargetAngle - Sensors.GetAngle();
+	}
 
-	//if(BrakeFor-- <= 0)
-	//{
-	//	Stop();
-	//	BrakeFor = 3;
-	//}
+	if(Ang < 0)
+	{
+		return 360 + Ang;
+	}
+	return Ang;
 }
 
 //------------------------------------------------------------------------------
@@ -277,6 +272,7 @@ void MotorController::SetForward()
 	Motor.StartMotor();
 	Sensors.ResetSpeedMeasurement();
 	SpeedPID.Reset();
+	DistancePID.Reset();
 	ControlMode = EControlMode::Moving;
 }
 
@@ -287,6 +283,7 @@ void MotorController::SetBackward()
 	Motor.SetMotorDirection(ESpinDirection::EAntiClockwise);
 	Motor.StartMotor();
 	SpeedPID.Reset();
+	DistancePID.Reset();
 	Sensors.ResetSpeedMeasurement();
 	ControlMode = EControlMode::Moving;
 }
@@ -298,7 +295,7 @@ void MotorController::SetSpeed(uint8_t RPM)
 	//RPMSetPoint = RPM;
 	TargetRPM = RPM;
 	SpeedPID.SetTarget(static_cast<float>(RPM));
-	DistancePID.SetOutputRange(0, TargetRPM);
+	DistancePID.SetOutputRange(-TargetRPM, -1);
 }
 
 //------------------------------------------------------------------------------

@@ -101,6 +101,7 @@ public:
 
 	/// Set spin direction.
 	void SetMotorDirection(ESpinDirection Direction);
+	ESpinDirection GetMotorDirection() const;
 
 	/// Motor activity state. On/Off.
 	bool IsMotorStarted() const;

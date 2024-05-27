@@ -12,7 +12,7 @@ bool bAntiWindup = true;
 	{
 		PidDebugLog& Log = Framework::PigLog;
 		//static float DebugSampleTimer = 0.0f;
-		Input = Maths::Clamp(Input, InputMin, InputMax);
+		//Input = Maths::Clamp(Input, InputMin, InputMax);
 		Log.SpeedInput = Input;
 		Log.TimeInput = DeltaTime;
 
@@ -53,13 +53,16 @@ bool bAntiWindup = true;
 		//DebugSampleTimer -= DeltaTime;
 
 		//normalise range.
-		Pid = Maths::Clamp(Pid, InputMin, InputMax);
-		Pid = (Pid - InputMin) / (InputMax - InputMin);
-		Log.InterPid = Pid;
+		//Pid = Maths::Clamp(Pid, InputMin, InputMax);
+		//Pid = (Pid - InputMin) / (InputMax - InputMin);
+		//Log.InterPid = Pid;
 
 		//convert to output range.
-		Pid = OutputMin + (OutputMax * Pid);
+		//Pid = OutputMin + (OutputMax * Pid);
+		Pid = Maths::Clamp(Pid, (float)OutputMin, (float)OutputMax);
 		Log.OutputPid = Pid;
+
+		//if(SetPoint == 0)
 		//Framework::PidDebugging();
 
 		return Pid;

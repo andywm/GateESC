@@ -80,6 +80,7 @@ void MotorOne::RepeatabilityTest()
 	{
 		bWait = false;
 		Control.SetTargetPosition(NO_TARGET_ANGLE);
+		Control.SetSpeed(10);
 		Control.SetForward();
 
 		bResetRepeatabilityTarget = true;

@@ -100,6 +100,11 @@ void MotorDriver::SetMotorDirection(ESpinDirection Direction)
 	SpinDirection = Direction;
 }
 
+ESpinDirection MotorDriver::GetMotorDirection() const
+{
+	return SpinDirection;
+}
+
 bool MotorDriver::IsMotorStarted() const
 {
 	return MotorOn;

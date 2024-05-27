@@ -30,7 +30,7 @@ private:
 	bool AtTarget = false;
 	bool bDoEffortCalculation = false;
 
-	enum class EControlMode {Stopped, Moving, Braking};
+	enum class EControlMode {Stopped, Moving, Stop};
 	EControlMode ControlMode {EControlMode::Stopped};
 
 public:
@@ -47,5 +47,5 @@ public:
 
 private:
 	void Moving();
-	void Braking();
+	int DistanceToTarget();
 };
