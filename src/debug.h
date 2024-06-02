@@ -111,6 +111,7 @@ public:
 
 	TextBuffer* UpdateBackBuffer();
 
+	Adafruit_SSD1306& GetDisplayInOverrideMode();
 	void AddPage(DebugPage& Page);
 	void Init();
 	void SetPage(int Page);

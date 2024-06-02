@@ -22,9 +22,16 @@ Description:
 DebugSystem::DebugSystem()
 	: LineCount(4)
 	, I2CBus(Framework::Pinout::I2C0_SDA, Framework::Pinout::I2C0_SCL)
-	, Display(128, 32, &I2CBus, -1)
+	, Display(128, 64, &I2CBus, -1)
 {
 	
+}
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+Adafruit_SSD1306& DebugSystem::GetDisplayInOverrideMode()
+{
+	return Display;
 }
 
 //------------------------------------------------------------------------------
