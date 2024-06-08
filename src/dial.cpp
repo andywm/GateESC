@@ -17,6 +17,21 @@ static constexpr int ChevronActivationOrder[] = {1, 2, 3, 6, 7, 8, 9, 4, 5};
 
 static float CHEVRON_ANG = 6.28f/9.0f;
 
+void DialerProgram::AddSymbol(int Symbol)
+{
+
+}
+void DialerProgram::BeginDial()
+{
+
+}
+
+void DialerProgram::Process()
+{
+
+}
+
+
 void DialerUI::SetChevron(int Chevron, bool bOn)
 {
 	float Angle = Chevron * CHEVRON_ANG;

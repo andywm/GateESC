@@ -10,6 +10,7 @@ Description:
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 #include "motor/motor_controller.h"
+#include "dial.h"
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
@@ -20,14 +21,15 @@ Description:
 //------------------------------------------------------------------------------
 class MotorOne
 {
-private:
+private: 
 	MotorController Control;
+	DialerProgram Dialer; 
 	Timer TestTimer;
 
 public:
 	void Run();
 	void Init();
 	void Loop();
-	void DialTest();
-	void RepeatabilityTest();
+	//void DialTest();
+	//void RepeatabilityTest();
 };
