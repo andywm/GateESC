@@ -9,7 +9,6 @@ Description:
 #pragma once
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-#include "motor/motor_controller.h"
 #include "dial.h"
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
@@ -22,9 +21,8 @@ Description:
 class MotorOne
 {
 private: 
-	MotorController Control;
 	//DialerProgram Dialer; 
-	Timer TestTimer;
+	//Timer TestTimer;
 
 public:
 	void Run();

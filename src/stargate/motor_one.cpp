@@ -10,7 +10,10 @@ Description:
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 #include "motor_one.h"
-#include "framework/framework.h"
+#include "framework.h"
+#include "devices.h"
+#include "motor/motor_controller.h"
+#include "oled/oled_display_controller.h"
 #include <Arduino.h>
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
@@ -41,12 +44,12 @@ void MotorOne::Run()
 //------------------------------------------------------------------------------
 void MotorOne::Init()
 {
-	Control.Init();
-	Control.SetSpeed(10);
-	Control.SetForward();
-	//Control.SetBackward();
-	Framework::Debug.Init();
-	Framework::Debug.SetPage(0);
+	//Control.Init();
+	//Control.SetSpeed(10);
+	//Control.SetForward();
+	//::Motor.Init();
+	Device::Display.Init();
+	Device::Display.SetPage(0);
 }
 
 /*

@@ -66,6 +66,7 @@ namespace Maths
 		return static_cast<T>(A + 0.5f);
 	}
 
+	template<typename T=int>
 	static int NativeAngToDeg(int Native)
 	{
 		return static_cast<float>(Native) * kNativeAngleToDegrees;

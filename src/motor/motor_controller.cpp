@@ -11,7 +11,7 @@ Description:
 //------------------------------------------------------------------------------
 #include "motor/motor_controller.h"
 #include "framework.h"
-#include "oled/oled_display_controller.h"
+#include "devices.h"
 #include <Arduino.h>
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
@@ -134,7 +134,7 @@ void MotorController::Init()
 	Sensors.ResetSpeedMeasurement();
 
 	// Add Debug Page
-	Framework::Debug.AddPage(ControllerDebug);
+	Device::Display.AddPage(ControllerDebug);
 	ControllerDebug.pwm1.Value = 0;
 	ControllerDebug.pwm2.Value = 0;
 	ControllerDebug.pwm3.Value = 0;
@@ -202,7 +202,7 @@ void MotorController::Moving()
 		}
 		const int PWM = SpeedPID.PID(Sensors.GetRPMf(), Sensors.GetRpmDeltaTime());
 		
-		//Framework::Message("Dist=%d", Dist);
+		//Device::SerialCom.Message("Dist=%d", Dist);
 
 		Motor.SetDuty(PWM);
 

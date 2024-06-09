@@ -6,11 +6,11 @@
 Description:
 
 ------------------------------------------------------------------------------*/
-
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 #include "motor/motor_sensors.h"
-#include "quadrature.pio.h"
+#include "motor/quadrature.pio.h"
+#include "devices.h"
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
@@ -26,15 +26,15 @@ const uint QuadratureStateMachine = 0;
 //------------------------------------------------------------------------------
 void MotorSensors::DeclareHallPins(int Pin1, int Pin2, int Pin3)
 {
-	Framework::Message(" Hall 1; pin %d", Pin1 );
+	Device::SerialCom.Message(" Hall 1; pin %d", Pin1 );
 	Framework::PinMode(Pin1, EInput);
 	SensorsPins[0] = Pin1;
 
-	Framework::Message(" Hall 2; pin %d", Pin2 );
+	Device::SerialCom.Message(" Hall 2; pin %d", Pin2 );
 	Framework::PinMode(Pin2, EInput);
 	SensorsPins[1] = Pin2;
 
-	Framework::Message(" Hall 3; pin %d", Pin3 );
+	Device::SerialCom.Message(" Hall 3; pin %d", Pin3 );
 	Framework::PinMode(Pin3, EInput);
 	SensorsPins[2] = Pin3;
 }
@@ -127,7 +127,7 @@ void MotorSensors::SenseCommutationStep()
 		Hash |= (PinState << SensorID);
 	}
 
-	//Framework::Message("Debug Hash= %d", Hash );
+	//Device::SerialCom.Message("Debug Hash= %d", Hash );
 	// Find Step for Hash
 	for( int Step = 0; Step < GlobalMotor::StepCount; ++Step )
 	{

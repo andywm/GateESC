@@ -11,6 +11,7 @@ Description:
 //------------------------------------------------------------------------------
 #include "motor_driver.h"
 #include "framework.h"
+#include "devices.h"
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
@@ -24,7 +25,7 @@ Description:
 //------------------------------------------------------------------------------
 void MotorDriver::DeclarePinsForPhase(int Phase, int SourcePin, int SinkPin)
 {
-	Framework::Message(" Phase %d; Source %d; Sink %d", Phase, SourcePin, SinkPin );
+	Device::SerialCom.Message(" Phase %d; Source %d; Sink %d", Phase, SourcePin, SinkPin );
 
 	ControlPins[(Phase*2)+PinOffset::ESink] = SinkPin;
 	ControlPins[(Phase*2)+PinOffset::ESource] = SourcePin;
@@ -68,7 +69,7 @@ void MotorDriver::SetCommutatorStep(int Step)
 	if( Step != CurrentStep )
 	{
 		CurrentStep = Step;
-		//Framework::Message( "Step %d", CurrentStep );
+		//Device::SerialCom.Message( "Step %d", CurrentStep );
 		
 		const int WindingIdx = SpinDirection == ESpinDirection::EClockwise? WindingLookupCW[Step] : WindingLookupACW[Step];
 		ActiveWinding = WindingTable[WindingIdx];
@@ -84,7 +85,7 @@ void MotorDriver::SetCommutatorStepBraking(int Step, bool bInitial)
 	if( Step != CurrentStep || bInitial)
 	{
 		CurrentStep = Step;
-		//Framework::Message( "Step %d", CurrentStep );
+		//Device::SerialCom.Message( "Step %d", CurrentStep );
 		
 		const int WindingIdx = SpinDirection == ESpinDirection::EAntiClockwise? WindingLookupCW[Step] : WindingLookupACW[Step];
 		ActiveWinding = WindingTable[WindingIdx];
@@ -169,9 +170,9 @@ void MotorDriver::Drive()
 	if (ActiveWinding.Sink != -1 && ActiveWinding.Source != -1)
 	{
 		Duty = TargetDuty;
-		//Framework::Message( "High %s ; Low %s", DebugActiveWinding(ActiveWinding.Source, PinOffset::ESource),  DebugActiveWinding(ActiveWinding.Sink, PinOffset::ESink ));
-		//Framework::Message( "High %d ; Low %d", ControlPins[ActiveWinding.Source], ControlPins[ActiveWinding.Sink]);
-		//Framework::Message( "-----------------------------");
+		//Device::SerialCom.Message( "High %s ; Low %s", DebugActiveWinding(ActiveWinding.Source, PinOffset::ESource),  DebugActiveWinding(ActiveWinding.Sink, PinOffset::ESink ));
+		//Device::SerialCom.Message( "High %d ; Low %d", ControlPins[ActiveWinding.Source], ControlPins[ActiveWinding.Sink]);
+		//Device::SerialCom.Message( "-----------------------------");
 
 		Framework::DigitalWrite(ControlPins[ActiveWinding.Sink], Framework::Signal::NFetClosed);
 		Framework::AnalogWrite(ControlPins[ActiveWinding.Source], Framework::Signal::PFetInterpolate(Duty));

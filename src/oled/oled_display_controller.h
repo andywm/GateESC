@@ -24,8 +24,15 @@ Description:
 /// Debug Page Base Class. Override this with specific debug information.
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
+struct RenderPage
+{
+	virtual bool Update() = 0;
+
+	void Draw()
+};
+
 using TextBuffer = char[4][21];
-struct DebugPage
+struct DebugPage final : public RenderPage
 {
 	TextBuffer Buffer;
 
@@ -37,7 +44,6 @@ struct DebugPage
 		memset(&Buffer[3][0], 0, 20);
 	}
 	virtual ~DebugPage() = default;
-	virtual bool Update() = 0;
 
 protected:
 	template<typename ...PackedArgs>
@@ -123,5 +129,3 @@ private:
 	bool WriteToScreenBuffer();
 	bool PrimeScreenBuffer();
 };
-
-extern OledDisplayController Display;

@@ -69,14 +69,6 @@ namespace Framework
 		}
 	};
 
-	template<typename... PackedArgs>
-	extern void Message(const char* Msg, PackedArgs...Args)
-	{
-		char Buffer[32];
-		snprintf(Buffer,32,Msg, Args...);
-		Serial.println(Buffer);
-	}
-
 	//extern void PidDebugging();
 
 	// Halting Assert - asserts if the condition is false

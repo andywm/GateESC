@@ -12,11 +12,10 @@ Description:
 #include <Arduino.h>
 #include "framework.h"
 #include "oled/oled_display_controller.h"
+#include "device.h"
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
-/*
-OledDisplayController Display;
 #define USE_SERIAL_DEBUG 0
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
@@ -73,7 +72,7 @@ void OledDisplayController::Process()
 			}
 
 #if USE_SERIAL_DEBUG
-			Framework::Message("Debug - Was Rated Limited...");
+			Device::SerialCom.Message("Debug - Was Rated Limited...");
 #endif //USE_SERIAL_DEBUG
 			LCDMetadata.State = Metadata_LCD::EState::Idle;
 			//explit fallthrough to Idle.
@@ -85,7 +84,7 @@ void OledDisplayController::Process()
 				return;
 			}
 #if USE_SERIAL_DEBUG
-			Framework::Message("Debug - Was Idle");
+			Device::SerialCom.Message("Debug - Was Idle");
 #endif //USE_SERIAL_DEBUG
 			LCDMetadata.State = Metadata_LCD::EState::WritingBuffer;
 			//explit fallthrough to WritingBuffer
@@ -105,7 +104,7 @@ void OledDisplayController::Process()
 	case Metadata_LCD::EState::ClearBuffer:
 		{
 #if USE_SERIAL_DEBUG
-			Framework::Message("Debug - Clear...");
+			Device::SerialCom.Message("Debug - Clear...");
 #endif //USE_SERIAL_DEBUG
 
 			//clear is expensive, ~3ms, so swtich to a rate limit.
@@ -134,7 +133,7 @@ bool OledDisplayController::IsRateLimited()
 void OledDisplayController::SetRatedLimited()
 {
 #if USE_SERIAL_DEBUG
-	Framework::Message("Debug - Lockout");
+	Device::SerialCom.Message("Debug - Lockout");
 #endif //USE_SERIAL_DEBUG
 
 	LCDMetadata.State = Metadata_LCD::EState::RateLimited;
@@ -180,10 +179,10 @@ bool OledDisplayController::PrimeScreenBuffer()
 	memcpy(&ScreenBuffer, &Buffer, 21*4);
 
 #if USE_SERIAL_DEBUG
-	Framework::Message("1: %s", &ScreenBuffer[0][0]);
-	Framework::Message("2: %s", &ScreenBuffer[1][0]);
-	Framework::Message("3: %s", &ScreenBuffer[2][0]);
-	Framework::Message("4: %s", &ScreenBuffer[3][0]);
+	Device::SerialCom.Message("1: %s", &ScreenBuffer[0][0]);
+	Device::SerialCom.Message("2: %s", &ScreenBuffer[1][0]);
+	Device::SerialCom.Message("3: %s", &ScreenBuffer[2][0]);
+	Device::SerialCom.Message("4: %s", &ScreenBuffer[3][0]);
 #endif //USE_SERIAL_DEBUG
 
 	return true;
@@ -220,7 +219,7 @@ bool OledDisplayController::WriteToScreenBuffer()
 				Update &= ~CharMask;
 				
 #if USE_SERIAL_DEBUG
-				Framework::Message("Writing Pos L=%d, C=%d: %c", LineIdx, CharIdx, ScreenBuffer[LineIdx][CharIdx]);
+				Device::SerialCom.Message("Writing Pos L=%d, C=%d: %c", LineIdx, CharIdx, ScreenBuffer[LineIdx][CharIdx]);
 #endif //USE_SERIAL_DEBUG
 
  				Display.setCursor(CharIdx * 6, LineIdx * 8);
@@ -244,4 +243,3 @@ bool OledDisplayController::WriteToScreenBuffer()
 
 	return false;
 }
-*/
