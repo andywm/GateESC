@@ -1,3 +1,4 @@
+/*
 #include <Adafruit_SSD1306.h>
 #include "dial.h"
 
@@ -180,3 +181,4 @@ void DialerUI::TickAnimation()
 		}
 	}
 }
+*/

@@ -23,7 +23,7 @@ class MotorOne
 {
 private: 
 	MotorController Control;
-	DialerProgram Dialer; 
+	//DialerProgram Dialer; 
 	Timer TestTimer;
 
 public:

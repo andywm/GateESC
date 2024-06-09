@@ -9,17 +9,18 @@ Description:
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-#include "debug.h"
 #include <Arduino.h>
 #include "framework.h"
+#include "oled/oled_display_controller.h"
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
+/*
+OledDisplayController Display;
 #define USE_SERIAL_DEBUG 0
-
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-DebugSystem::DebugSystem()
+OledDisplayController::OledDisplayController()
 	: LineCount(4)
 	, I2CBus(Framework::Pinout::I2C0_SDA, Framework::Pinout::I2C0_SCL)
 	, Display(128, 64, &I2CBus, -1)
@@ -29,21 +30,21 @@ DebugSystem::DebugSystem()
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-Adafruit_SSD1306& DebugSystem::GetDisplayInOverrideMode()
+Adafruit_SSD1306& OledDisplayController::GetDisplayInOverrideMode()
 {
 	return Display;
 }
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-void DebugSystem::AddPage(DebugPage& Page )
+void OledDisplayController::AddPage(DebugPage& Page )
 {
 	Pages[NextFreePage++] = &Page;
 }
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-void DebugSystem::Init()
+void OledDisplayController::Init()
 {
 	Display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
 	Display.clearDisplay();
@@ -52,14 +53,14 @@ void DebugSystem::Init()
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-void DebugSystem::SetPage(int Page)
+void OledDisplayController::SetPage(int Page)
 {
 	CurrentPage = Page;
 }
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-void DebugSystem::Process()
+void OledDisplayController::Process()
 {
 	//If updates are rate limited, bail.
 	switch(LCDMetadata.State)
@@ -122,7 +123,7 @@ void DebugSystem::Process()
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-bool DebugSystem::IsRateLimited()
+bool OledDisplayController::IsRateLimited()
 {
 	//return LimitTimer.ReadTime() < 333333;
 	return LimitTimer.ReadTime() < 100000;
@@ -130,7 +131,7 @@ bool DebugSystem::IsRateLimited()
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-void DebugSystem::SetRatedLimited()
+void OledDisplayController::SetRatedLimited()
 {
 #if USE_SERIAL_DEBUG
 	Framework::Message("Debug - Lockout");
@@ -142,7 +143,7 @@ void DebugSystem::SetRatedLimited()
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-bool DebugSystem::PrimeScreenBuffer()
+bool OledDisplayController::PrimeScreenBuffer()
 {
 	if( CurrentPage != UINT8_MAX && !Pages[CurrentPage]->Update() )
 	{
@@ -190,7 +191,7 @@ bool DebugSystem::PrimeScreenBuffer()
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-bool DebugSystem::WriteToScreenBuffer()
+bool OledDisplayController::WriteToScreenBuffer()
 {
 	uint8_t& LineIdx = LCDMetadata.CurrentLine;
 	uint8_t& CharIdx = LCDMetadata.CurrentChar;
@@ -243,3 +244,4 @@ bool DebugSystem::WriteToScreenBuffer()
 
 	return false;
 }
+*/

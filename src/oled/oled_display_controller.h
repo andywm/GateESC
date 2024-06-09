@@ -74,7 +74,7 @@ struct DebugValue
 	T Value;
 };
 
-class DebugSystem
+class OledDisplayController
 {
 	static constexpr int MaxPages = 10;
 private:
@@ -107,7 +107,7 @@ private:
 	}LCDMetadata;
 
 public:
-	DebugSystem();
+	OledDisplayController();
 
 	TextBuffer* UpdateBackBuffer();
 
@@ -123,3 +123,5 @@ private:
 	bool WriteToScreenBuffer();
 	bool PrimeScreenBuffer();
 };
+
+extern OledDisplayController Display;

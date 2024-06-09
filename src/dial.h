@@ -1,4 +1,5 @@
 #pragma once
+/*
 class Adafruit_SSD1306;
 
 class DialerProgram
@@ -30,3 +31,5 @@ struct DialerUI
 	AnimPhase Phase = AnimPhase::SymbSmall;
 	Adafruit_SSD1306* Display = nullptr;
 };
+
+*/

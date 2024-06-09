@@ -20,10 +20,11 @@ Description:
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 //Framework::Timings Framework::Timing;
-DebugSystem Debug;
+//DebugSystem Debug;
 
 //PidDebugLog Framework::PigLog;
 
+/*
 void Framework::PidDebugging()
 {
 	char Buffer[256];
@@ -31,6 +32,7 @@ void Framework::PidDebugging()
 
 	Serial.println(Buffer);
 }
+*/
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------

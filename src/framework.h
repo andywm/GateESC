@@ -11,7 +11,6 @@ Description:
 //------------------------------------------------------------------------------
 #include <stdint.h>
 #include <Arduino.h>
-#include "debug.h"
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 #ifndef P_FETS_LOGICAL_INVERT
@@ -78,7 +77,7 @@ namespace Framework
 		Serial.println(Buffer);
 	}
 
-	extern void PidDebugging();
+	//extern void PidDebugging();
 
 	// Halting Assert - asserts if the condition is false
 	extern void Assert(bool bCondition, const char* Msg=nullptr);

@@ -10,14 +10,12 @@ bool bAntiWindup = true;
 
 	OutputType PID(InputType Input, float DeltaTime)
 	{
-		PidDebugLog& Log = Framework::PigLog;
-		//static float DebugSampleTimer = 0.0f;
-		//Input = Maths::Clamp(Input, InputMin, InputMax);
-		Log.SpeedInput = Input;
-		Log.TimeInput = DeltaTime;
+		//PidDebugLog& Log = Framework::PigLog;
+		//Log.SpeedInput = Input;
+		//Log.TimeInput = DeltaTime;
 
 		const float Error = SetPoint - Input;
-		Log.Error = Error;
+		//Log.Error = Error;
 
 		if (bInitial)
 		{
@@ -26,17 +24,17 @@ bool bAntiWindup = true;
 		}
 
 		const float pTerm = Error;
-		Log.pTerm = pTerm;
+		//Log.pTerm = pTerm;
 
 		const float iTerm = Integral + (Error * DeltaTime);
-		Log.iTerm = iTerm;
+		//Log.iTerm = iTerm;
 		
 		const float dTerm = (Error - PrevError) / DeltaTime;
-		Log.eDiff = Error - PrevError;
-		Log.dTerm = dTerm;
+		//Log.eDiff = Error - PrevError;
+		//Log.dTerm = dTerm;
 
 		float Pid =  (pTerm * kProportional) + (iTerm * kIntegral) + (dTerm * kDerivative);
-		Log.RawPid = Pid;
+		//Log.RawPid = Pid;
 		if(bAntiWindup == false)
 		{
 			Integral = iTerm;
@@ -60,7 +58,7 @@ bool bAntiWindup = true;
 		//convert to output range.
 		//Pid = OutputMin + (OutputMax * Pid);
 		Pid = Maths::Clamp(Pid, (float)OutputMin, (float)OutputMax);
-		Log.OutputPid = Pid;
+		//Log.OutputPid = Pid;
 
 		//if(SetPoint == 0)
 		//Framework::PidDebugging();
