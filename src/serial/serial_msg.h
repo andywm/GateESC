@@ -8,6 +8,7 @@ Description:
 ------------------------------------------------------------------------------*/
 #pragma once
 #include <stdint.h>
+#include "devices.h"
 //#include <Arduino.h>
 
 class SerialCommunication

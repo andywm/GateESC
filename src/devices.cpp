@@ -8,10 +8,18 @@ Description:
 ------------------------------------------------------------------------------*/
 #include "devices.h"
 
+#include <Arduino.h>
+#include "serial/serial_msg.h"
+#include "oled/oled_display_controller.h"
+#include "motor/motor_controller.h"
+#include "chevrons/chevron_lock.h"
+#include "chevrons/lamps.h"
+
 namespace Device
 {
-
     SerialCommunication SerialCom;
     OledDisplayController Display;
+    MotorController Motor;
+    ChevronLockController ChevronLock;
+    ChevronLampController ChevronLamps;
 }
-//MotorController Motor;

@@ -1,6 +1,6 @@
+/*
 #include "oled/oled_display_controller.h"
 #include "dial.h"
-
 static constexpr int SYMBOL_PANE_X = 100;
 static constexpr int SYMBOL_PANE_W = 15;
 static constexpr int SYMBOL_PANE_H = 10;
@@ -18,7 +18,7 @@ static float CHEVRON_ANG = 6.28f/9.0f;
 
 struct DialerUI : public RenderPage
 {
-	enum class AnimPhase {SequenceInit, SymbSmall, SymbBig, SymFull, Pane, Reset};
+	enum class AnimPhase {SequenceInit, SymbSmall, SymbBig, SymFull, Pane, Reset, Lock};
 	int Address[9] = {0};
 
 	unsigned long PrevTime = 0;
@@ -29,7 +29,7 @@ struct DialerUI : public RenderPage
 
 	AnimPhase Phase = AnimPhase::SymbSmall;
 
-	void DialerUI::SetChevron(Adafruit_SSD1306& Display, int Chevron, bool bOn)
+	void SetChevron(Adafruit_SSD1306& Display, int Chevron, bool bOn)
 	{
 		float Angle = Chevron * CHEVRON_ANG;
 		int ChevX = GATE_CENTRE_X + (GATE_CHEV_RADIUS * sin(Angle));
@@ -46,7 +46,7 @@ struct DialerUI : public RenderPage
 		}
 	}
 
-	void DialerUI::SetSymbolPane(Adafruit_SSD1306& Display, int Chevron, int Symbol)
+	void SetSymbolPane(Adafruit_SSD1306& Display, int Chevron, int Symbol)
 	{
 		int SymbolY = Chevron * (SYMBOL_PANE_H-1);
 		Display.drawRect(SYMBOL_PANE_X, SymbolY, SYMBOL_PANE_W, SYMBOL_PANE_H, BLACK);
@@ -65,7 +65,7 @@ struct DialerUI : public RenderPage
 		Display.print(str);
 	}
 
-	void DialerUI::SetBigSymbol(Adafruit_SSD1306& Display, int Phase, int Symbol)
+	void SetBigSymbol(Adafruit_SSD1306& Display, int Phase, int Symbol)
 	{
 		Display.fillCircle(GATE_CENTRE_X, GATE_CENTRE_Y, GATE_MINOR_RADIUS-2, BLACK);
 
@@ -88,15 +88,7 @@ struct DialerUI : public RenderPage
 		}
 	}
 
-	void DialerUI::Iniitalise() 
-	{
-		//Display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
-		//Display.clearDisplay();
-		//DrawStaticElements();
-		//timerZero = millis();
-	}
-
-	void DialerUI::DrawStaticElements(Adafruit_SSD1306& Display)
+	void DrawStaticElements(Adafruit_SSD1306& Display)
 	{
 		for (int Symbol=0; Symbol<7; ++Symbol)
 		{
@@ -114,9 +106,9 @@ struct DialerUI : public RenderPage
 		Display.display();
 	}
 
-	void DialerUI::Draw(Adafruit_SSD1306& Display) 
+	void Draw(Adafruit_SSD1306& Display) 
 	{
-		//Anim
+		//Animate Display
 		if (CurrentSymbol < MaxSymbol)
 		{
 			if (CurrentSymbol == 0 && Phase == AnimPhase::SequenceInit)
@@ -157,24 +149,29 @@ struct DialerUI : public RenderPage
 			}
 			else if (Timer > 3000 && Phase == AnimPhase::Reset)
 			{
-				if (CurrentSymbol == MaxSymbol && bBigButton)
+				Phase = AnimPhase::SymbSmall;
+				if (CurrentSymbol == MaxSymbol)
 				{
-					Phase = AnimPhase::SequenceInit;
-
-					Display.fillCircle(GATE_CENTRE_X, GATE_CENTRE_Y, GATE_MINOR_RADIUS-2, WHITE);
-					Display.drawCircle(GATE_CENTRE_X, GATE_CENTRE_Y, GATE_MINOR_RADIUS-10, BLACK);
-					Display.drawCircle(GATE_CENTRE_X, GATE_CENTRE_Y, GATE_MINOR_RADIUS-5, BLACK);
-					Display.drawCircle(GATE_CENTRE_X, GATE_CENTRE_Y, GATE_MINOR_RADIUS-15, BLACK);
-					Display.drawCircle(GATE_CENTRE_X, GATE_CENTRE_Y, 2, BLACK);
-					Display.display();
+					Phase = AnimPhase::Lock;
 				}
 
 				CurrentSymbol++;
 			}
+			else if (bBigButton && Phase == AnimPhase::Lock)
+			{
+				Display.fillCircle(GATE_CENTRE_X, GATE_CENTRE_Y, GATE_MINOR_RADIUS-2, WHITE);
+				Display.drawCircle(GATE_CENTRE_X, GATE_CENTRE_Y, GATE_MINOR_RADIUS-10, BLACK);
+				Display.drawCircle(GATE_CENTRE_X, GATE_CENTRE_Y, GATE_MINOR_RADIUS-5, BLACK);
+				Display.drawCircle(GATE_CENTRE_X, GATE_CENTRE_Y, GATE_MINOR_RADIUS-15, BLACK);
+				Display.drawCircle(GATE_CENTRE_X, GATE_CENTRE_Y, 2, BLACK);
+				Display.display();
+
+				Phase = AnimPhase::SequenceInit;
+			}
 		}
 	}
 };
-
+*/
 /*
 void DialerProgram::AddSymbol(int Symbol)
 {

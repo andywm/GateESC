@@ -1,33 +1,48 @@
 /*------------------------------------------------------------------------------
- ()		File: motor_one.h
+ ()		File: stargate.h
  /\		Authour: Andrew Woodward-May
-/  \	Date: March 2022	License: MIT
+/  \	Date: June 2024	License: MIT
 
 Description:
-	'Application' class for Motor One.  
 ------------------------------------------------------------------------------*/
 #pragma once
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 #include "dial.h"
+#include "util/timer.h"
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
+using uint8 = unsigned char;
+static constexpr uint8 NullAddress = 0xFF;
+static constexpr uint8 NullPosition = 0xFF;
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 // Motor One
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-class MotorOne
+class Stargate
 {
-private: 
-	//DialerProgram Dialer; 
-	//Timer TestTimer;
-
 public:
-	void Run();
-	void Init();
 	void Loop();
-	//void DialTest();
-	//void RepeatabilityTest();
+	void Dial(int Symbol);
+	void Establish();
+
+private:
+	void UpdateDialSequence();
+	void Seek();
+	void LockChevron();
+
+private: 
+	enum class EStatus {Idle, DialingAddress, Wormhole, Reset};
+	enum class EDialStatus {Seek, Lock, NextSeek};
+
+	Timer ChevronTimer;
+
+	EStatus Status {EStatus::Idle};
+	EDialStatus DialStatus {EDialStatus::Seek};
+
+	uint8 AddressBuffer[9] = {NullAddress};
+	uint8 CurrentChevron = 0;
+	bool bEstablish = false;
 };

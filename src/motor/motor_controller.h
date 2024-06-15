@@ -12,6 +12,7 @@ Description:
 #include "motor/motor_driver.h"
 #include "motor/motor_sensors.h"
 #include "util/pid.h"
+#include "devices.h"
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 

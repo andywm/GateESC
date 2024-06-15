@@ -15,6 +15,7 @@ Description:
 #include <Adafruit_SSD1306.h>
 #include "util/naff_string_utilities.h"
 #include "util/timer.h"
+#include "devices.h"
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 #define _USING_DEBUG_DISPLAY
@@ -28,11 +29,11 @@ struct RenderPage
 {
 	virtual bool Update() = 0;
 
-	void Draw()
+	void Draw(Adafruit_SSD1306& Display);
 };
 
 using TextBuffer = char[4][21];
-struct DebugPage final : public RenderPage
+struct DebugPage : public RenderPage
 {
 	TextBuffer Buffer;
 

@@ -7,24 +7,18 @@ Description:
     Globally available hardware devices.
 ------------------------------------------------------------------------------*/
 #pragma once
-#include <Arduino.h>
 
-//class SerialCommunication;
-//class OledDisplayController;
-//class MotorController;
-
-#include "serial/serial_msg.h"
-#include "oled/oled_display_controller.h"
-#include "motor/motor_controller.h"
+class SerialCommunication;
+class OledDisplayController;
+class MotorController;
+class ChevronLockController;
+class ChevronLampController;
 
 namespace Device
 {
     extern SerialCommunication SerialCom;
     extern OledDisplayController Display;
     extern MotorController Motor;
+    extern ChevronLockController ChevronLock;
+    extern ChevronLampController ChevronLamps;
 }
-//DisplayDevice
-//MotorDevice
-//ChevronLockDevice//
-//ChevronLedDevice
-//SoundDevice

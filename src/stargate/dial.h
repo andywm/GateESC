@@ -1,8 +1,7 @@
-#pragma once
 /*
-class Adafruit_SSD1306;
+#pragma once
 
-class DialerProgram
+class DialHomeDevice
 {
   int Address[9] = {0};
 
@@ -10,5 +9,4 @@ class DialerProgram
   void BeginDial();
   void Process();
 };
-
 */
