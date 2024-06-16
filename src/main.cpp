@@ -5,11 +5,12 @@
 
 Stargate Gate;
 
-
 void setup()
 {
 	init();
 	Device::SerialCom.Init();
+	Device::DHD.Connect([](int Sym){Device::Stargate.Dial(Symb)});
+	Device::DHD.ConnectEstablish([](){Device::Stargate.Establish()});
 	//Device::Display.Init();
 	//Device::Display.SetPage(0);
 }
@@ -18,4 +19,5 @@ void loop()
 {
 	Gate.Loop(); 
 	Device::Motor.Update();
+	Device::DHD.Update();
 }
