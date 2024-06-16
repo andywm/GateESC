@@ -25,16 +25,25 @@ Description:
 /// Debug Page Base Class. Override this with specific debug information.
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-struct RenderPage
+struct OledPage
 {
+	enum EFlags = {TextOnly, Raster} Flags {EFlags::Raster};
+	struct SetFlag { SetFlag(OledPage* Pg, EFlags Flag){Pg->Flags |= Flagl}};
+
 	virtual bool Update() = 0;
+};
+
+struct RasterPage : public OledPage
+{
+	SetFlag IsRaster(*this, EFlags::Raster);
 
 	void Draw(Adafruit_SSD1306& Display);
 };
 
 using TextBuffer = char[4][21];
-struct DebugPage : public RenderPage
+struct DebugPage
 {
+	SetFlag IsTextMode(*this, EFlags::TextOnly);
 	TextBuffer Buffer;
 
 	DebugPage()
@@ -119,7 +128,7 @@ public:
 	TextBuffer* UpdateBackBuffer();
 
 	Adafruit_SSD1306& GetDisplayInOverrideMode();
-	void AddPage(DebugPage& Page);
+	int AddPage(DebugPage& Page);
 	void Init();
 	void SetPage(int Page);
 	void Process();
@@ -130,3 +139,42 @@ private:
 	bool WriteToScreenBuffer();
 	bool PrimeScreenBuffer();
 };
+
+class LCDCompat
+{
+	const int LineCount;
+
+	TextBuffer ScreenBuffer;
+	uint8_t CurrentPage = UINT8_MAX;
+	uint8_t NextFreePage = 0;
+	Timer LimitTimer;
+
+	struct Metadata_LCD
+	{
+		enum class EState
+		{
+			Idle,
+			RateLimited,
+			WritingBuffer, 
+			ClearBuffer, 
+		} State {EState::ClearBuffer};
+		uint32_t UpdateMask[4] = {0,0,0,0};
+		uint8_t Page = UINT8_MAX;
+		uint8_t CurrentLine {0};
+		uint8_t CurrentChar {0};
+
+
+	}LCDMetadata;
+
+public:
+	LCDCompat();
+
+	TextBuffer* UpdateBackBuffer();
+	Adafruit_SSD1306& GetDisplayInOverrideMode();
+
+private:
+	bool IsRateLimited();
+	void SetRatedLimited();
+	bool WriteToScreenBuffer();
+	bool PrimeScreenBuffer();
+}

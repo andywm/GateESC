@@ -173,42 +173,31 @@ struct DialerUI : public RenderPage
 	}
 };
 */
-/*
-void DialerProgram::AddSymbol(int Symbol)
-{
 
-}
-void DialerProgram::BeginDial() 
+void DialController::Connect_Dialer(DialFn Fn)
 {
-
+	DialGate = Fn;
 }
 
-void DialerProgram::Process()
+void DialController::Connect_Establish(EstablishFn Fn)
 {
-
-}*/
-
-void DialController::Connect(DialFn Dial)
-{
-	Gate = Dial;
-}
-
-void DialController::ConnectEstablish(EstablishFn Est)
-{
-	Activate = Est;
+	Activate = Fn;
 }
 
 void DialController::Update()
 {
-	if (bExecuteHardcodedDialSeq && Gate && Activate)
+	//Mock Dialing sequence. Eventually this class will handle DHD inputs.
+	if (bExecuteHardcodedDialSeq && DialGate && Activate)
 	{
-		Gate(27);
-		Gate(6);
-		Gate(36);
-		Gate(12);
-		Gate(9);
-		Gate(2);
-		Gate(39);
+		bExecuteHardcodedDialSeq = false;
+
+		DialGate(27);
+		DialGate(6);
+		DialGate(36);
+		DialGate(12);
+		DialGate(9);
+		DialGate(2);
+		DialGate(39);
 		Activate();
 	}
 }

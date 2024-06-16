@@ -5,12 +5,12 @@ class DialController
   using DialFn = void(*)(int);
   using EstablishFn = void(*)();
 
-  void Connect(DialFn Dial);
-  void ConnectEstablish(EstablishFn Est);
+  void Connect_Dialer(DialFn Dial);
+  void Connect_Establish(EstablishFn Est);
   void Update();
 
 private:
-  DialFn Gate = nullptr;
+  DialFn DialGate = nullptr;
   EstablishFn Activate = nullptr;
   bool bExecuteHardcodedDialSeq = true;
 };

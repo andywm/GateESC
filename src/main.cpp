@@ -9,10 +9,11 @@ void setup()
 {
 	init();
 	Device::SerialCom.Init();
-	Device::DHD.Connect([](int Sym){Device::Stargate.Dial(Symb)});
-	Device::DHD.ConnectEstablish([](){Device::Stargate.Establish()});
-	//Device::Display.Init();
+	Device::Display.Init();
 	//Device::Display.SetPage(0);
+
+	Device::DHD.Connect_Dialer([](int Sym){Device::Stargate.Dial(Symb)});
+	Device::DHD.Connect_Establish([](){Device::Stargate.Establish()});
 }
 
 void loop()

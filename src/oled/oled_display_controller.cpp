@@ -36,9 +36,10 @@ Adafruit_SSD1306& OledDisplayController::GetDisplayInOverrideMode()
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-void OledDisplayController::AddPage(DebugPage& Page )
+void OledDisplayController::AddPage(DebugPage& Page)
 {
-	Pages[NextFreePage++] = &Page;
+	Pages[NextFreePage] = &Page;
+	return NextFreePage++;
 }
 
 //------------------------------------------------------------------------------
