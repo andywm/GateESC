@@ -14,6 +14,7 @@ Description:
 #include "motor/motor_controller.h"
 #include "chevrons/chevron_lock.h"
 #include "chevrons/lamps.h"
+#include "stargate/dial.h"
 
 namespace Device
 {
@@ -22,4 +23,5 @@ namespace Device
     MotorController Motor;
     ChevronLockController ChevronLock;
     ChevronLampController ChevronLamps;
+    DialController DHD;
 }

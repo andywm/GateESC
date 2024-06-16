@@ -1,6 +1,7 @@
+#include "dial.h"
+
 /*
 #include "oled/oled_display_controller.h"
-#include "dial.h"
 static constexpr int SYMBOL_PANE_X = 100;
 static constexpr int SYMBOL_PANE_W = 15;
 static constexpr int SYMBOL_PANE_H = 10;
@@ -186,3 +187,28 @@ void DialerProgram::Process()
 {
 
 }*/
+
+void DialController::Connect(DialFn Dial)
+{
+	Gate = Dial;
+}
+
+void DialController::ConnectEstablish(EstablishFn Est)
+{
+	Activate = Est;
+}
+
+void DialController::Update()
+{
+	if (bExecuteHardcodedDialSeq && Gate && Activate)
+	{
+		Gate(27);
+		Gate(6);
+		Gate(36);
+		Gate(12);
+		Gate(9);
+		Gate(2);
+		Gate(39);
+		Activate();
+	}
+}

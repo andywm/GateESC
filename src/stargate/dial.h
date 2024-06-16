@@ -1,12 +1,16 @@
-/*
 #pragma once
 
-class DialHomeDevice
+class DialController
 {
-  int Address[9] = {0};
+  using DialFn = void(*)(int);
+  using EstablishFn = void(*)();
 
-  void AddSymbol(int Symbol);
-  void BeginDial();
-  void Process();
+  void Connect(DialFn Dial);
+  void ConnectEstablish(EstablishFn Est);
+  void Update();
+
+private:
+  DialFn Gate = nullptr;
+  EstablishFn Activate = nullptr;
+  bool bExecuteHardcodedDialSeq = true;
 };
-*/

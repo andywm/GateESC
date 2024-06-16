@@ -13,6 +13,7 @@ class OledDisplayController;
 class MotorController;
 class ChevronLockController;
 class ChevronLampController;
+class DialController;
 
 namespace Device
 {
@@ -21,4 +22,26 @@ namespace Device
     extern MotorController Motor;
     extern ChevronLockController ChevronLock;
     extern ChevronLampController ChevronLamps;
+    extern DialController DHD;
 }
+
+/*
+template<typename T, typename Rtn, typename ...TArgs>
+struct Interconnect
+{
+    using Function Rtn T::(*fn)(TArgs&&...args));
+
+    template<typename T, typename Rtn, typename ...TArgs>
+    static Rtn Function((TArgs&&...args))
+    {
+        (*Ptr).ClassPtr(std::forward(...args);)
+    }
+
+    static Function FnPtr = nullptr;
+    static T* ClassPtr = nullptr;
+    T* Ptr;
+}
+
+Interconnect<Stargate, void, int>::Fn;
+
+*/
