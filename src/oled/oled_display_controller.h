@@ -27,15 +27,17 @@ Description:
 //------------------------------------------------------------------------------
 struct OledPage
 {
-	enum EFlags = {TextOnly, Raster} Flags {EFlags::Raster};
-	struct SetFlag { SetFlag(OledPage* Pg, EFlags Flag){Pg->Flags |= Flagl}};
+	enum EFlags {TextOnly, Raster}; 
+	EFlags Flags {EFlags::Raster};
+
+	struct SetFlag { SetFlag(OledPage* Pg, EFlags Flag){/*Pg->Flags |= Flag;*/}};
 
 	virtual bool Update() = 0;
 };
 
 struct RasterPage : public OledPage
 {
-	SetFlag IsRaster(*this, EFlags::Raster);
+	//SetFlag IsRaster(this, EFlags::Raster);
 
 	void Draw(Adafruit_SSD1306& Display);
 };
@@ -43,7 +45,7 @@ struct RasterPage : public OledPage
 using TextBuffer = char[4][21];
 struct DebugPage
 {
-	SetFlag IsTextMode(*this, EFlags::TextOnly);
+	//SetFlag IsTextMode(this, EFlags::TextOnly);
 	TextBuffer Buffer;
 
 	DebugPage()
@@ -177,4 +179,4 @@ private:
 	void SetRatedLimited();
 	bool WriteToScreenBuffer();
 	bool PrimeScreenBuffer();
-}
+};

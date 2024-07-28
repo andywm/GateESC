@@ -174,17 +174,17 @@ struct DialerUI : public RenderPage
 };
 */
 
-void DialController::Connect_Dialer(DialFn Fn)
+void DialInputController::Connect_Dialer(DialFn Fn)
 {
 	DialGate = Fn;
 }
 
-void DialController::Connect_Establish(EstablishFn Fn)
+void DialInputController::Connect_Establish(EstablishFn Fn)
 {
 	Activate = Fn;
 }
 
-void DialController::Update()
+void DialInputController::Update()
 {
 	//Mock Dialing sequence. Eventually this class will handle DHD inputs.
 	if (bExecuteHardcodedDialSeq && DialGate && Activate)

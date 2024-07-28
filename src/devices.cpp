@@ -20,8 +20,8 @@ namespace Device
 {
     SerialCommunication SerialCom;
     OledDisplayController Display;
-    MotorController Motor;
-    ChevronLockController ChevronLock;
-    ChevronLampController ChevronLamps;
-    DialController DHD;
+    //MotorController Motor;
+    //ChevronLockController ChevronLock;
+    //ChevronLampController ChevronLamps;
+    //DialController DHD;
 }

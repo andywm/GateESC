@@ -26,6 +26,10 @@ Description:
 // Stargate
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
+void Stargate::InitControllers()
+{
+	
+}
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
@@ -33,23 +37,36 @@ void Stargate::Loop()
 {
 	switch(Status)
 	{
-	case EStatus::Idle:
+	case EStargateState::Idle:
+		if (DHD.PollActivity())
+		{
+			BeginDialingSequence();
+		}
 		return;
-	case EStatus::DialingAddress:
+	case EStargateState::DialingAddress:
 		UpdateDialSequence();
 		return;
-	case EStatus::Wormhole:
+	case EStargateState::Wormhole:
 		Status = EStatus::Reset;
 		return;
-	case EStatus::Reset:
+	case EStargateState::Reset:
 		return;
 	}
+}
+
+void Stargate::BeginDialingSequence()
+{
+	Status = EStargateState::DialingAddress;
+	DialStatus = EDialStatus::Seek;
 }
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 void Stargate::UpdateDialSequence()
 {
+	//EDialingSymbolState::New
+	//EDialingSymbolState::Seeking
+	//EDialingSymbolState::ChevronLock
 	switch(DialStatus)
 	{
 	case EDialStatus::Seek:
@@ -57,6 +74,7 @@ void Stargate::UpdateDialSequence()
 		return;
 	case EDialStatus::Lock:
 		LockChevron();
+		DHD.Confirm(CurrentChevron);
 		return;
 	case EDialStatus::NextSeek:
 		CurrentChevron++;
@@ -65,27 +83,50 @@ void Stargate::UpdateDialSequence()
 	}
 }
 
+void Stargate::OnNewSymbol()
+{
+	static bool bOscilate = false;
+
+	if (AddressBuffer[CurrentChevron] != NullAddress)
+	{
+		RingMotor.SetSpeed(10);
+		RingMotor.SetTargetPosition(ChevronAngleTable[AddressBuffer[CurrentChevron]]);
+		AddressBuffer[CurrentChevron] = NullAddress;
+
+		if ((bOscilate = !bOscilate) == true)
+		{
+			RingMotor.SetForward();
+		}
+		else
+		{
+			RingMotor.SetBackward();
+		}
+	}
+
+	Seek();
+}
+
 void Stargate::Seek()
 {
 	static bool bOscilate = false;
 
 	if (AddressBuffer[CurrentChevron] != NullAddress)
 	{
-		Device::Motor.SetSpeed(10);
-		Device::Motor.SetTargetPosition(ChevronAngleTable[AddressBuffer[CurrentChevron]]);
+		RingMotor.SetSpeed(10);
+		RingMotor.SetTargetPosition(ChevronAngleTable[AddressBuffer[CurrentChevron]]);
 		AddressBuffer[CurrentChevron] = NullAddress;
 
 		if ((bOscilate = !bOscilate) == true)
 		{
-			Device::Motor.SetForward();
+			RingMotor.SetForward();
 		}
 		else
 		{
-			Device::Motor.SetBackward();
+			RingMotor.SetBackward();
 		}
 	}
 
-	if (Device::Motor.IsAtTargetPosition())
+	if (RingMotor.IsAtTargetPosition())
 	{
 		DialStatus = EDialStatus::Lock;
 		ChevronTimer.Restart();

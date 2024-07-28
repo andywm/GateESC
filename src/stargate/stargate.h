@@ -9,6 +9,7 @@ Description:
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 #include "dial.h"
+#include "stargate_state.h"
 #include "util/timer.h"
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
@@ -24,6 +25,7 @@ static constexpr uint8 NullPosition = 0xFF;
 class Stargate
 {
 public:
+	void InitControllers();
 	void Loop();
 	void Dial(int Symbol);
 	void Establish();
@@ -34,8 +36,7 @@ private:
 	void LockChevron();
 
 private: 
-	enum class EStatus {Idle, DialingAddress, Wormhole, Reset};
-	enum class EDialStatus {Seek, Lock, NextSeek};
+	enum class EDialStatus {ConsumeInput, Seek, Lock, NextSeek};
 
 	Timer ChevronTimer;
 
@@ -45,4 +46,10 @@ private:
 	uint8 AddressBuffer[9] = {NullAddress};
 	uint8 CurrentChevron = 0;
 	bool bEstablish = false;
+
+private:
+	DialInputController DHD;
+	MotorController RingMotor;
+	ChevronLockController ChevronLock;
+	ChevronLampController ChevronLamps;
 };
