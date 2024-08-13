@@ -25,7 +25,8 @@ Description:
 //------------------------------------------------------------------------------
 void MotorDriver::DeclarePinsForPhase(int Phase, int SourcePin, int SinkPin)
 {
-	Device::SerialCom.Message(" Phase %d; Source %d; Sink %d", Phase, SourcePin, SinkPin );
+	//TODO fix device
+	//Device::SerialCom.Message(" Phase %d; Source %d; Sink %d", Phase, SourcePin, SinkPin );
 
 	ControlPins[(Phase*2)+PinOffset::ESink] = SinkPin;
 	ControlPins[(Phase*2)+PinOffset::ESource] = SourcePin;

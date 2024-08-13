@@ -134,7 +134,8 @@ void MotorController::Init()
 	Sensors.ResetSpeedMeasurement();
 
 	// Add Debug Page
-	Device::Display.AddPage(ControllerDebug);
+	//TODO Fix device
+	//Device::Display.AddPage(ControllerDebug);
 	ControllerDebug.pwm1.Value = 0;
 	ControllerDebug.pwm2.Value = 0;
 	ControllerDebug.pwm3.Value = 0;

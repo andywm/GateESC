@@ -27,15 +27,16 @@ const uint QuadratureStateMachine = 0;
 //------------------------------------------------------------------------------
 void MotorSensors::DeclareHallPins(int Pin1, int Pin2, int Pin3)
 {
-	Device::SerialCom.Message(" Hall 1; pin %d", Pin1 );
+	//TODO fix Device
+	//Device::SerialCom.Message(" Hall 1; pin %d", Pin1 );
 	Framework::PinMode(Pin1, EInput);
 	SensorsPins[0] = Pin1;
 
-	Device::SerialCom.Message(" Hall 2; pin %d", Pin2 );
+	//Device::SerialCom.Message(" Hall 2; pin %d", Pin2 );
 	Framework::PinMode(Pin2, EInput);
 	SensorsPins[1] = Pin2;
 
-	Device::SerialCom.Message(" Hall 3; pin %d", Pin3 );
+	//Device::SerialCom.Message(" Hall 3; pin %d", Pin3 );
 	Framework::PinMode(Pin3, EInput);
 	SensorsPins[2] = Pin3;
 }

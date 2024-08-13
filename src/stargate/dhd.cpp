@@ -1,4 +1,4 @@
-#include "dial.h"
+#include "dhd.h"
 
 /*
 #include "oled/oled_display_controller.h"
@@ -174,16 +174,7 @@ struct DialerUI : public RenderPage
 };
 */
 
-void DialInputController::Connect_Dialer(DialFn Fn)
-{
-	DialGate = Fn;
-}
-
-void DialInputController::Connect_Establish(EstablishFn Fn)
-{
-	Activate = Fn;
-}
-
+/*
 void DialInputController::Update()
 {
 	//Mock Dialing sequence. Eventually this class will handle DHD inputs.
@@ -200,4 +191,4 @@ void DialInputController::Update()
 		DialGate(39);
 		Activate();
 	}
-}
+}*/

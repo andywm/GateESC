@@ -12,7 +12,6 @@ Description:
 #include <Arduino.h>
 #include "framework.h"
 #include "oled/oled_display_controller.h"
-#include "device.h"
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
@@ -36,7 +35,7 @@ Adafruit_SSD1306& OledDisplayController::GetDisplayInOverrideMode()
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-void OledDisplayController::AddPage(DebugPage& Page)
+int OledDisplayController::AddPage(DebugPage& Page)
 {
 	Pages[NextFreePage] = &Page;
 	return NextFreePage++;
@@ -145,11 +144,12 @@ void OledDisplayController::SetRatedLimited()
 //------------------------------------------------------------------------------
 bool OledDisplayController::PrimeScreenBuffer()
 {
-	if( CurrentPage != UINT8_MAX && !Pages[CurrentPage]->Update() )
+	//TODO fix
+	//if( CurrentPage != UINT8_MAX && !Pages[CurrentPage]->Update() )
 	{
 		return false;
 	}
-	else if( CurrentPage == UINT8_MAX && LCDMetadata.Page != UINT8_MAX )
+	//else if( CurrentPage == UINT8_MAX && LCDMetadata.Page != UINT8_MAX )
 	{
 		//Clear
 		LCDMetadata.Page = UINT8_MAX;

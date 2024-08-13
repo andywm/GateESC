@@ -15,7 +15,6 @@ Description:
 #include <Adafruit_SSD1306.h>
 #include "util/naff_string_utilities.h"
 #include "util/timer.h"
-#include "devices.h"
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 #define _USING_DEBUG_DISPLAY
@@ -48,6 +47,7 @@ struct DebugPage
 	//SetFlag IsTextMode(this, EFlags::TextOnly);
 	TextBuffer Buffer;
 
+	virtual bool Update() {return true;}
 	DebugPage()
 	{
 		memset(&Buffer[0][0], 0, 20);

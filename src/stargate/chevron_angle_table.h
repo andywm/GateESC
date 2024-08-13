@@ -2,7 +2,8 @@
 
 constexpr unsigned short CalcChevronAngle(unsigned short ChevronNumber)
 {
-    return 360 / ChevronNumber;
+	//well this is obviously wrong.
+	return 360 / ChevronNumber;
 }
 
 static constexpr unsigned short ChevronAngleTable[39]

@@ -7,7 +7,6 @@ Description:
     Stubout future lamp controller.
 ------------------------------------------------------------------------------*/
 #pragma once
-#include "devices.h"
 
 class ChevronLampController
 {
@@ -15,4 +14,5 @@ public:
     void Init() {} 
     void Illuminate(int Lamp) {}
     void Darken(int Lamp) {}
+    void Reset() {};
 };

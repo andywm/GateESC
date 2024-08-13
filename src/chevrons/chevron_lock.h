@@ -7,7 +7,6 @@ Description:
     Stubout future lamp controller.
 ------------------------------------------------------------------------------*/
 #pragma once
-#include "devices.h"
 
 class ChevronLockController
 {
@@ -15,4 +14,5 @@ public:
     void Init() {} 
     void ActuateOn() {}
     void ActuateOff() {}
+    void Reset() {}
 };
