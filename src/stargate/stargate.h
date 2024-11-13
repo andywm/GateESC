@@ -54,7 +54,7 @@ public:
 		int SymbolCount = 39;
 		int ChevronCount = 9;
 		int PointOfOrigin = 39;
-		int LockTime = 10000;
+		unsigned long LockTime = 10000;
 	} Config;
 
 	const CurrentState& State = InternalState;
