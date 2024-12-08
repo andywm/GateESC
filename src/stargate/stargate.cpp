@@ -51,6 +51,7 @@ struct SGS_WaitingForSymbol final : public StargateFSMState
 {
 	void OnProcess() override
 	{
+		//Dialer->PollAndEat()
 		const uint8 Symb = DHD->PollAndEat();
 		if (Symb != UINT8_MAX)
 		{
@@ -114,6 +115,7 @@ struct SGS_SymbolLamp final : public StargateFSMState
 {
 	void OnEnter() override
 	{
+		//Did->Confirm()
 		Stargate->ChevronLamp();
 
 		FSM->Transition(Stargate->State.bIsFinalSymbol 
@@ -191,6 +193,10 @@ void StarGate::UpdateState(int Symbol)
 //------------------------------------------------------------------------------
 void StargateSG1::Initialise(DialHomeDevice* InDHD)
 {
+	RingMotor.Init();
+	ChevronLock.Init();
+	ChevronLamps.Init();
+
 	DialFSM.Add<SGS_ResetAndReady>(StargateDialState::Reset, this, InDHD);
 	DialFSM.Add<SGS_WaitingForSymbol>(StargateDialState::WaitForSymbol, this, InDHD);
 	DialFSM.Add<SGS_SeekingSymbol>(StargateDialState::SeekToSymbol, this, InDHD);

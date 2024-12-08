@@ -1,6 +1,6 @@
 #include "dhd.h"
 
-/*
+
 #include "oled/oled_display_controller.h"
 static constexpr int SYMBOL_PANE_X = 100;
 static constexpr int SYMBOL_PANE_W = 15;
@@ -17,7 +17,7 @@ static constexpr int TEXTSIZE_W = 5;
 static constexpr int ChevronActivationOrder[] = {1, 2, 3, 6, 7, 8, 9, 4, 5};
 static float CHEVRON_ANG = 6.28f/9.0f;
 
-struct DialerUI : public RenderPage
+struct SGCDialScreen : public RenderPage
 {
 	enum class AnimPhase {SequenceInit, SymbSmall, SymbBig, SymFull, Pane, Reset, Lock};
 	int Address[9] = {0};
@@ -172,7 +172,7 @@ struct DialerUI : public RenderPage
 		}
 	}
 };
-*/
+
 
 /*
 void DialInputController::Update()
