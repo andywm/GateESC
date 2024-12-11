@@ -21,7 +21,7 @@ using uint8 = unsigned char;
 enum class StargateDialState
 {
 	Reset,
-	WaitForSymbol,
+	WaitForInput,
 	SeekToSymbol,
 	LockChevron,
 	LampOn,
@@ -39,14 +39,6 @@ enum class StargateDialState
 //------------------------------------------------------------------------------
 class StarGate
 {
-private:
-	struct CurrentState
-	{
-		int Chevron = -1;
-		int Symbol = -1;
-		bool bIsFinalSymbol = false;
-	} InternalState;
-
 public:
 	const struct GeneralConfiguration
 	{
@@ -57,7 +49,9 @@ public:
 		unsigned long LockTime = 10000;
 	} Config;
 
-	const CurrentState& State = InternalState;
+	uint8 CurrentSymbol;
+	uint8 CurrentChevron;
+
 	RudimentaryFSM<StargateDialState> DialFSM;
 
 	virtual void Initialise(DialHomeDevice* InDHD) = 0;
@@ -68,8 +62,6 @@ public:
 	virtual void RaiseLock() = 0;
 	virtual void ReleaseLock() = 0;
 	virtual void ChevronLamp() = 0;
-
-	void UpdateState(int Symbol);
 };
 
 //------------------------------------------------------------------------------
@@ -79,9 +71,8 @@ public:
 //------------------------------------------------------------------------------
 struct StargateFSMState : public FSMState<StargateDialState> 
 {
-	void Init(StarGate* InStargate, DialHomeDevice* InDHD);
+	void Init(StarGate* InStargate);
 	StarGate* Stargate;
-	DialHomeDevice* DHD;
 };
 
 //------------------------------------------------------------------------------

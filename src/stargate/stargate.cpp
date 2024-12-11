@@ -13,23 +13,24 @@ Description:
 #include "motor/motor_controller.h"
 #include "chevrons/chevron_lock.h"
 #include "chevrons/lamps.h"
-//#include "oled/oled_display_controller.h"
 #include <Arduino.h>
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
 /* Dialing State Machine
-																													OnReset
-		[Reset] <-----------------------------------------------------------------------------------------------------------\
-		  |	 ^																												 |
-		  |	 | OnTimeout					 AtSymb(NoLock)									Failed							 |
-  OnReady |	 | OnCancel				  .-------------------------|					 /------------------> [FailDial] --------|
-		  v  | 				 		 /						    v					/										/
-	 	[WaitSym] -------> [SeekSymbol] -------> [Lock] -----> [Lamp] ---------> [WaitActivate] ---------> [Wormhole] -----/
-		  ^		  DialSymb				AtSymb			Light	|	 OnFinalSymb				Success
-		  |														|
-		  \-----------------------------------------------------/
-							OnNextSymb
+									OnReset
+		[Reset] <-------------------------------------------\
+		  |	 ^												|
+		  |	 | OnTimeout									|
+  OnReady |	 |						  /-------> [FailDial] -|
+		  |  | 	    /--------> [Commit] ------> [Wormhole] -|
+		  |  |     /ActivatorPressed
+		  v	 |	  /						  LockSymbol		  Light
+	 	[WaitInput] -------> [SeekSymbol] ----------> [Lock] --------> [Lamp]
+		  ^			SymbPress			\----------------------------->[Lamp]
+		  |											Light				 |
+		  \-------------------------------------------------------------/
+							WaitForNextInput
 */
 
 //------------------------------------------------------------------------------
@@ -40,23 +41,31 @@ struct SGS_ResetAndReady final : public StargateFSMState
 	void OnEnter() override 
 	{
 		Stargate->Reset();
-		FSM->Transition(StargateDialState::WaitForSymbol);
+		FSM->Transition(StargateDialState::WaitForInput);
 	}
 };
 
 //------------------------------------------------------------------------------
 // WaitSym
 //------------------------------------------------------------------------------
-struct SGS_WaitingForSymbol final : public StargateFSMState
+struct SGS_WaitingForInput final : public StargateFSMState
 {
 	void OnProcess() override
 	{
-		//Dialer->PollAndEat()
-		const uint8 Symb = DHD->PollAndEat();
+		const uint8 Symb = DialingInterface::Get().PollAndEat();
 		if (Symb != UINT8_MAX)
 		{
-			Stargate->UpdateState(Symb);
+			Stargate->CurrentChevron = Symb;
 			FSM->Transition(StargateDialState::SeekToSymbol);
+
+			return;
+		}
+
+		if (DialingInterface::Get().IsActivatorPressed())
+		{
+			//check address.
+			//FSM->Transition(StargateDialState::Wormhole);
+			FSM->Transition(StargateDialState::DialFailure);
 		}
 	}
 };
@@ -115,25 +124,11 @@ struct SGS_SymbolLamp final : public StargateFSMState
 {
 	void OnEnter() override
 	{
-		//Did->Confirm()
+		DialingInterface::Get().Encode(Stargate->CurrentChevron, Stargate->CurrentSymbol);
+
 		Stargate->ChevronLamp();
 
-		FSM->Transition(Stargate->State.bIsFinalSymbol 
-			? StargateDialState::WaitForSymbol 
-			: StargateDialState::WaitForActivate
-			);
-	}
-};
-
-//------------------------------------------------------------------------------
-// WaitActivate
-//------------------------------------------------------------------------------
-struct SGS_WaitingForActivate final : public StargateFSMState
-{
-	void OnProcess() override
-	{
-		//DHD->CheckActivator()
-		FSM->Transition(StargateDialState::DialFailure);
+		FSM->Transition(StargateDialState::WaitForInput);
 	}
 };
 
@@ -164,10 +159,9 @@ struct SGS_Wormhole final : public StargateFSMState
 // StargateFSMState
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-void StargateFSMState::Init(StarGate* InStargate, DialHomeDevice* InDHD)
+void StargateFSMState::Init(StarGate* InStargate)
 {
 	Stargate = InStargate;
-	DHD = InDHD;
 }
 
 //------------------------------------------------------------------------------
@@ -175,13 +169,6 @@ void StargateFSMState::Init(StarGate* InStargate, DialHomeDevice* InDHD)
 // StarGate
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-void StarGate::UpdateState(int Symbol)
-{
-	InternalState.Chevron++;
-	InternalState.Symbol = Symbol;
-	InternalState.bIsFinalSymbol = Symbol == Config.PointOfOrigin;
-}
-
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
@@ -197,14 +184,13 @@ void StargateSG1::Initialise(DialHomeDevice* InDHD)
 	ChevronLock.Init();
 	ChevronLamps.Init();
 
-	DialFSM.Add<SGS_ResetAndReady>(StargateDialState::Reset, this, InDHD);
-	DialFSM.Add<SGS_WaitingForSymbol>(StargateDialState::WaitForSymbol, this, InDHD);
-	DialFSM.Add<SGS_SeekingSymbol>(StargateDialState::SeekToSymbol, this, InDHD);
-	DialFSM.Add<SGS_ChevronLock>(StargateDialState::LockChevron, this, InDHD);
-	DialFSM.Add<SGS_SymbolLamp>(StargateDialState::LampOn, this, InDHD);
-	DialFSM.Add<SGS_WaitingForActivate>(StargateDialState::WaitForActivate, this, InDHD);
-	DialFSM.Add<SGS_DialFailure>(StargateDialState::DialFailure, this, InDHD);
-	DialFSM.Add<SGS_Wormhole>(StargateDialState::Wormhole, this, InDHD);
+	DialFSM.Add<SGS_ResetAndReady>(StargateDialState::Reset, this);
+	DialFSM.Add<SGS_WaitingForInput>(StargateDialState::WaitForInput, this);
+	DialFSM.Add<SGS_SeekingSymbol>(StargateDialState::SeekToSymbol, this);
+	DialFSM.Add<SGS_ChevronLock>(StargateDialState::LockChevron, this);
+	DialFSM.Add<SGS_SymbolLamp>(StargateDialState::LampOn, this);
+	DialFSM.Add<SGS_DialFailure>(StargateDialState::DialFailure, this);
+	DialFSM.Add<SGS_Wormhole>(StargateDialState::Wormhole, this);
 }
 
 //------------------------------------------------------------------------------
@@ -229,7 +215,7 @@ void StargateSG1::Reset()
 void StargateSG1::SeekSymbolWithDirection(bool bClockwise)
 {
 	RingMotor.SetSpeed(10);
-	RingMotor.SetTargetPosition(State.Symbol);
+	RingMotor.SetTargetPosition(CurrentSymbol);
 
 	if (bClockwise)
 	{
@@ -268,5 +254,5 @@ void StargateSG1::ReleaseLock()
 //------------------------------------------------------------------------------
 void StargateSG1::ChevronLamp()
 {
-	ChevronLamps.Illuminate(State.Chevron);
+	ChevronLamps.Illuminate(CurrentChevron);
 }
