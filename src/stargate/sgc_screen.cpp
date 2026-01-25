@@ -1,8 +1,7 @@
 #include "dhd.h"
 #include "sgc_screen.h"
+#include "dpm.h"
 
-
-#include "oled/oled_display_controller.h"
 static constexpr int SYMBOL_PANE_X = 100;
 static constexpr int SYMBOL_PANE_W = 15;
 static constexpr int SYMBOL_PANE_H = 10;

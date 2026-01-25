@@ -71,9 +71,11 @@ void MotorDriver::SetCommutatorStep(int Step)
 	{
 		CurrentStep = Step;
 		//Device::SerialCom.Message( "Step %d", CurrentStep );
-		
-		const int WindingIdx = SpinDirection == ESpinDirection::EClockwise? WindingLookupCW[Step] : WindingLookupACW[Step];
-		ActiveWinding = WindingTable[WindingIdx];
+		if(Step > -1)
+		{
+			const int WindingIdx = SpinDirection == ESpinDirection::EClockwise? WindingLookupCW[Step] : WindingLookupACW[Step];
+			ActiveWinding = WindingTable[WindingIdx];
+		}
 
 		CloseAllWindings();
 	}
@@ -87,9 +89,11 @@ void MotorDriver::SetCommutatorStepBraking(int Step, bool bInitial)
 	{
 		CurrentStep = Step;
 		//Device::SerialCom.Message( "Step %d", CurrentStep );
-		
-		const int WindingIdx = SpinDirection == ESpinDirection::EAntiClockwise? WindingLookupCW[Step] : WindingLookupACW[Step];
-		ActiveWinding = WindingTable[WindingIdx];
+		if(Step > -1)
+		{
+			const int WindingIdx = SpinDirection == ESpinDirection::EAntiClockwise? WindingLookupCW[Step] : WindingLookupACW[Step];
+			ActiveWinding = WindingTable[WindingIdx];
+		}
 
 		CloseAllWindings();
 	}
@@ -144,9 +148,12 @@ void MotorDriver::CloseAllWindings()
 void MotorDriver::SetDuty(uint8_t PWM)
 {
 	TargetDuty = PWM;
-		
-	const int WindingIdx = SpinDirection == ESpinDirection::EClockwise? WindingLookupCW[CurrentStep] : WindingLookupACW[CurrentStep];
-	ActiveWinding = WindingTable[WindingIdx];
+	
+	if(CurrentStep > -1)
+	{
+		const int WindingIdx = SpinDirection == ESpinDirection::EClockwise? WindingLookupCW[CurrentStep] : WindingLookupACW[CurrentStep];
+		ActiveWinding = WindingTable[WindingIdx];
+	}
 
 	CloseAllWindings();
 }

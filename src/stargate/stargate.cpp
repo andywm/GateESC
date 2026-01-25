@@ -256,3 +256,10 @@ void StargateSG1::ChevronLamp()
 {
 	ChevronLamps.Illuminate(CurrentChevron);
 }
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void StargateSG1::RegisterDebugHooks()
+{
+	RingMotor.RegisterDebugHooks();
+}

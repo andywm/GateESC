@@ -10,7 +10,7 @@ Description:
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 #include "motor/motor_controller.h"
-#include "oled/oled_display_controller.h"
+#include "dpm.h"
 #include "framework.h"
 #include <Arduino.h>
 //------------------------------------------------------------------------------
@@ -19,48 +19,42 @@ Description:
 //------------------------------------------------------------------------------
 // Debug Info
 //------------------------------------------------------------------------------
-struct HighLevelStatusPage : public DebugPage
+struct HighLevelStatusPage : public InfoTextPage
 {
-	virtual bool Update() override
-	{
-		if (!Dirty) return false;
+	PageInt rpm;
+	PageInt angle;
+	PageInt pwm1;
+	PageInt pwm2;
+	PageInt pwm3;
+	PageInt pwm4;
+	PageInt sym;
 
+	HighLevelStatusPage()
+	{
 		//______L__|12345678901234567890|
-		SetLine(0, "RPM ###      ANG ###", rpm.Value, angle.Value);
-		SetLine(1, "PWM ### ### ### ### ", pwm1.Value, pwm2.Value, pwm3.Value, pwm4.Value);
-		SetLine(2, "                    ");
-		SetLine(3, "Dial SYM ##         ", sym.Value);
-		Dirty = false;
-		return true;
+		SetLine<0>("RPM ###      ANG ###", rpm, angle);
+		SetLine<1>("PWM ### ### ### ### ", pwm1, pwm2, pwm3, pwm4);
+		SetLine<2>("                    ");
+		SetLine<3>("Dial SYM ##         ", sym);
 	}
-	DebugValue<int> rpm = {Dirty};
-	DebugValue<int> angle = {Dirty};
-	DebugValue<int> pwm1 = {Dirty};
-	DebugValue<int> pwm2 = {Dirty};
-	DebugValue<int> pwm3 = {Dirty};
-	DebugValue<int> pwm4 = {Dirty};
-	DebugValue<int> sym = {Dirty};
+
 } ControllerDebug;
 
 //------------------------------------------------------------------------------
 // Debug Info - fundamental states, useful for validating/debugging new hardware.
 //------------------------------------------------------------------------------
-struct LowLevelStatusPage : public DebugPage
+struct LowLevelStatusPage : public InfoTextPage
 {
-	DebugValue<int> step = {Dirty};
-	DebugValue<int> h1 = {Dirty};
-	DebugValue<int> h2 = {Dirty};
-	DebugValue<int> h3 = {Dirty};
+	PageInt step;
+	PageInt h1;
+	PageInt h2;
+	PageInt h3;
 
-	virtual bool Update() override
+	LowLevelStatusPage()
 	{
-		if (!Dirty) return false;
-
 		//______L__|12345678901234567890|
-		SetLine(0, "Step #              ", step.Value);
-		SetLine(1, "A# B# C#            ", h1.Value, h2.Value, h3.Value);
-		Dirty = false;
-		return true;
+		SetLine<0>("Step #              ", step);
+		SetLine<1>("A# B# C#            ", h1, h2, h3);
 	}
 } DebugFundamentals;
 
@@ -136,10 +130,10 @@ void MotorController::Init()
 	// Add Debug Page
 	//TODO Fix device
 	//Device::Display.AddPage(ControllerDebug);
-	ControllerDebug.pwm1.Value = 0;
-	ControllerDebug.pwm2.Value = 0;
-	ControllerDebug.pwm3.Value = 0;
-	ControllerDebug.pwm4.Value = 0;
+	ControllerDebug.pwm1 = 0;
+	ControllerDebug.pwm2 = 0;
+	ControllerDebug.pwm3 = 0;
+	ControllerDebug.pwm4 = 0;
 }
 
 //------------------------------------------------------------------------------
@@ -207,9 +201,9 @@ void MotorController::Moving()
 
 		Motor.SetDuty(PWM);
 
-		ControllerDebug.pwm4 = ControllerDebug.pwm3.Value;
-		ControllerDebug.pwm3 = ControllerDebug.pwm2.Value;
-		ControllerDebug.pwm2 = ControllerDebug.pwm1.Value;
+		ControllerDebug.pwm4 = ControllerDebug.pwm3;
+		ControllerDebug.pwm3 = ControllerDebug.pwm2;
+		ControllerDebug.pwm2 = ControllerDebug.pwm1;
 		ControllerDebug.pwm1 = PWM;
 	}
 
@@ -254,6 +248,14 @@ void MotorController::UpdateDebug()
 	ControllerDebug.rpm = Sensors.GetRPM(); 
 	ControllerDebug.angle = Sensors.GetAngle();
 	ControllerDebug.sym = 1 + ((TargetAngle - (TargetAngle<200? 2 : 5 )) / 9);
+}
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void MotorController::RegisterDebugHooks()
+{
+	PageManager.RegisterRoot(DebugFundamentals);
+	PageManager.RegisterRoot(ControllerDebug);
 }
 
 //------------------------------------------------------------------------------

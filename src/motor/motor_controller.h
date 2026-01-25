@@ -44,6 +44,7 @@ public:
 	bool IsAtTargetPosition();
 
 	void UpdateDebug();
+	void RegisterDebugHooks();
 
 private:
 	void Moving();

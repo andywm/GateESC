@@ -44,6 +44,9 @@ namespace Framework
 		constexpr static uint8_t I2C0_SCL		= 13;
 		constexpr static uint8_t QUADRATURE_A	= 14;
 		constexpr static uint8_t QUADRATURE_B	= 15;
+		constexpr static uint8_t KEYPAD_CLOCK	= 16;//figure out the actual pins for these!
+		constexpr static uint8_t KEYPAD_LATCH	= 17;
+		constexpr static uint8_t KEYPAD_DATA	= 20;
 	};
 	//static PidDebugLog PigLog; 
 

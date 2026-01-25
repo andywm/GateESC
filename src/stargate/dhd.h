@@ -8,18 +8,18 @@ struct IDialingDevice
 {
 	uint8 AddressBuffer[9] = {U8MAX};
 
-	virtual void Initialise();
-	virtual void Enabled(bool bEnable);
-	virtual void Update();
-	virtual void Reset();
-	virtual uint8 PollAndEat();
-	virtual void Confirm(uint8 SymbId, uint8 Symb);
-	virtual bool IsActivated();
+	virtual void Initialise() {};
+	virtual void Enabled(bool bEnable) {};
+	virtual void Update() {};
+	virtual void Reset() {};
+	virtual uint8 PollAndEat() {return 0;};
+	virtual void Confirm(uint8 SymbId, uint8 Symb) {};
+	virtual bool IsActivated() {return false;};
 };
 
 class DialingInterface
 {
-	static constexpr int NAX_DIALERS = 2;
+	static constexpr int MAX_DIALERS = 2;
 	//int Count=0;
 	//uint8 ActiveSymbol = -1;
 
@@ -64,7 +64,7 @@ public:
 
 	void AddDevice(IDialingDevice& Device)
 	{
-		if (DialerCount < NAX_DIALERS)
+		if (DialerCount < MAX_DIALERS)
 		{
 			Device.Initialise();
 			DialingDevices[DialerCount++] = &Device;	
@@ -72,7 +72,7 @@ public:
 	}
 
 	int DialerCount = 0;
-	IDialingDevice* DialingDevices[NAX_DIALERS] = {nullptr};
+	IDialingDevice* DialingDevices[MAX_DIALERS] = {nullptr};
 };
 
 class DialHomeDevice : public IDialingDevice

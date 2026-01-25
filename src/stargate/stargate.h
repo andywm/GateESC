@@ -62,6 +62,8 @@ public:
 	virtual void RaiseLock() = 0;
 	virtual void ReleaseLock() = 0;
 	virtual void ChevronLamp() = 0;
+
+	virtual void RegisterDebugHooks() {};
 };
 
 //------------------------------------------------------------------------------
@@ -91,6 +93,8 @@ public:
 	virtual void RaiseLock() override;
 	virtual void ReleaseLock() override;
 	virtual void ChevronLamp() override;
+
+	virtual void RegisterDebugHooks() override;
 
 private:
 	MotorController RingMotor;
